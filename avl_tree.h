@@ -27,11 +27,11 @@ class AvlTree
             if(tree_node->left!=NULL)
                left_hight = tree_node->left->node_height; 
             else
-               left_hight = 0;    
+               left_hight = -1;    
             if(tree_node->right!=NULL)
                right_hight = tree_node->right->node_height; 
             else
-                right_hight = 0; 
+                right_hight = -1; 
 
             return  left_hight - right_hight;
         }
@@ -43,11 +43,11 @@ class AvlTree
             if(this->left!=NULL)
                left_hight = this->left->node_height; 
             else
-               left_hight = 0;    
+               left_hight = -1;    
             if(this->right!=NULL)
                right_hight = this->right->node_height; 
             else
-                right_hight = 0; 
+                right_hight = -1; 
 
             if(left_hight > right_hight)
                 this->node_height = left_hight + 1;
@@ -95,7 +95,7 @@ class AvlTree
                         newTreeNode->right = NULL;
                         newTreeNode->next = NULL;
                         newTreeNode->parent = this; 
-                        newTreeNode->node_height = 1;  
+                        newTreeNode->node_height = 0;  
                         return newTreeNode; 
         }
          // internal function, helping us to insert properlly new data to our tree and keeping it balanced. 
@@ -177,7 +177,7 @@ class AvlTree
                         tree_node->data = temp_node->data;
                         tree_node->left = NULL;
                         tree_node->right = NULL;
-                        tree_node->node_height = temp_node->node_height;
+                        tree_node->node_height = 0;
                     } 
                     delete temp_node;     
                 }
@@ -225,7 +225,7 @@ class AvlTree
         AvlTree<T>* findNode(T data, AvlTree<T>* tree_node)
         {
             if(tree_node ==NULL)
-                return 0; // change to NULL; 
+                return NULL; // change to NULL; 
             else if(data == tree_node->data)
                 return tree_node;
             else if (tree_node->data < data)   
@@ -252,7 +252,7 @@ class AvlTree
             right = NULL;
             parent = NULL; 
             next = NULL;
-            node_height = 1; 
+            node_height = 0; 
         }
 
 
@@ -260,18 +260,23 @@ class AvlTree
         {  
             this->cleanTree(this->next);   
         }
-        // insert the data to the tree and keep it balanced. 
-        void insertElement(T data)
+        // insert the data to the tree and keep it balanced. returns false if this data is already inside the tree and true if it's not and it put it now.
+        bool insertElement(T data)
         {
+            //add condition to check if it's already in! 
             if(this->next == NULL) // MAKE INTERNAL FUNC
             {
                 AvlTree<T>* newTreeNode = createNewTreeNode(data); ;
                 this->next = newTreeNode; 
+                return true;
             }
             else
             {
+                if(findNode(data, this->next) != NULL)
+                    return false; 
                 this->next = this->insert(data, this->next); 
-            }    
+                return true;   
+            }   
         }
         // remove a data from the tree and keep it balanced. 
         int removeElement(T data)
@@ -279,7 +284,7 @@ class AvlTree
            AvlTree<T>* node = findNode(data, this->next);
            if(node ==NULL)
                 return 0; 
-           removeNode(data, this->next); 
+           this->next = removeNode(data, this->next); 
            return 1; 
         }
         // prints all the data in the tree by order from the smallest key to the biggest one. 
@@ -288,7 +293,11 @@ class AvlTree
                 if(this->next!=NULL)
                 {
                     this->next->printTr();
-                }    
+                } 
+                else // NEED TO SEE WHAT SOULD WE PRINT WHEN TREE IS EMPTY 
+                {
+                  std::cout <<  " " << std::endl;   
+                }   
             }
         // gets the height of the tree. (maybee we won't need that one.)    
         int getHeight()
@@ -317,6 +326,11 @@ class AvlTree
         void insertTopFather(T data)
         {
             this->next = createNewTreeNode(data);
+        }
+        void clearTree()
+        {
+            cleanTree(this->next); 
+            this->next = NULL;
         }
     };        
 #endif
