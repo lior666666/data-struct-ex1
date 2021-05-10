@@ -12,13 +12,20 @@ class ModelsArray
     Model* array;
 public:
     ModelsArray() = default;
-    ~ModelsArray() = default;
     ModelsArray(const ModelsArray& models_array1) = default;
+    ~ModelsArray()
+    {
+        for(int i = 0; i < this->num_of_models; i++)
+        {
+            delete (&(this->array))[i];
+        }
+        delete[] &(this->array);
+    };
     //check arg before calling the constructor!!!
     ModelsArray(int typeID, int num_of_models)
     {
         Model* array = new Model[num_of_models];
-        for (int i = 0; i < num_of_models; i++)
+        for(int i = 0; i < num_of_models; i++)
         {
             array[i] = *(new Model(typeID, i));
         }
