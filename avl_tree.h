@@ -299,6 +299,14 @@ class AvlTree
                   std::cout <<  " " << std::endl;   
                 }   
             }
+        AvlTree<T>* getLeft()
+        {
+            return this->left;
+        }
+        AvlTree<T>* getRight()
+        {
+            return this->right;
+        }
         // gets the height of the tree. (maybee we won't need that one.)    
         int getHeight()
         {
@@ -311,6 +319,10 @@ class AvlTree
             if(node == NULL)
                 return NULL;
             return &(node->data);      
+        } 
+        T* getData()
+        {
+            return &(this->data);      
         } 
         // insert data to a left son of a specific node in the tree. (usfull when we are building a tree from scratch node by node.)
         void insertLeftSon(T data, AvlTree<T>* tree_node)

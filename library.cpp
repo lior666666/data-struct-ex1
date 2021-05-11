@@ -19,4 +19,21 @@ StatusType RemoveCarType(void *DS, int typeID)
     return ((CarDealershipManager*)DS)->RemoveCarType(typeID);
 }
 
+StatusType MakeComplaint(void *DS, int typeID, int modelID, int t)
+{
+    if (DS == NULL || typeID <= 0 || modelID < 0)
+    {
+        return INVALID_INPUT;
+    }
+    return ((CarDealershipManager*)DS)->MakeComplaint(typeID, modelID, t);
+}
+
+StatusType GetWorstModels(void *DS, int numOfModels, int *types, int *models)
+{
+    if (DS == NULL || numOfModels <= 0)
+    {
+        return INVALID_INPUT;
+    }
+    return ((CarDealershipManager*)DS)->GetWorstModels(numOfModels, types, models);
+}
 

@@ -37,6 +37,14 @@ public:
     {
         return this->score;
     }
+    int getTypeID()
+    {
+        return this->typeID;
+    }
+    int getModelID()
+    {
+        return this->modelID;
+    }
 };
 
 bool operator==(const Model& model1, const Model& model2)

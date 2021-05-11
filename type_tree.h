@@ -10,17 +10,32 @@ class TypeTree
     AvlTree<Model>* models_tree;
 public:
     TypeTree() = default;
+    TypeTree(const TypeTree& type_tree) = default;
+    friend bool operator==(const TypeTree& type_tree1, const TypeTree& type_tree2);
+    friend bool operator<(const TypeTree& type_tree1, const TypeTree& type_tree2);
     ~TypeTree()
     {
         (*this->models_tree).clearTree();
     };
-    TypeTree(const TypeTree& type_tree) = default;
-    friend bool operator==(const TypeTree& type_tree1, const TypeTree& type_tree2);
-    friend bool operator<(const TypeTree& type_tree1, const TypeTree& type_tree2);
-    TypeTree(int typeID)
+    TypeTree(int typeID, bool is_dummy)
     {
         this->typeID = typeID;
-        this->models_tree = NULL;
+        if (is_dummy)
+        {
+            this->models_tree = NULL;
+        }
+        else
+        {
+            this->models_tree = new AvlTree<Model>();
+        }
+    }
+    bool insertModel(Model model)
+    {
+        return this->models_tree->insertElement(model);
+    }
+    bool removeModel(Model model)
+    {
+        return this->models_tree->removeElement(model);
     }
     AvlTree<Model> getModelsTree()
     {
