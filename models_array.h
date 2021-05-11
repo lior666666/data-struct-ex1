@@ -15,11 +15,22 @@ public:
     ModelsArray(const ModelsArray& models_array1) = default;
     ~ModelsArray()
     {
-        for(int i = 0; i < this->num_of_models; i++)
+        if (this->array != NULL)
         {
-            delete (&(this->array))[i];
+            for(int i = 0; i < this->num_of_models; i++)
+            {
+                delete (&(this->array))[i];
+            }
+            delete[] &(this->array);
         }
-        delete[] &(this->array);
+    };
+    ModelsArray(int typeID)
+    {
+        this->typeID = typeID;
+        this->num_of_models = 0;
+        this->max_sales = 0;
+        this->best_seller_model = NULL;
+        this->array = NULL;
     };
     //check arg before calling the constructor!!!
     ModelsArray(int typeID, int num_of_models)
@@ -35,5 +46,30 @@ public:
         this->best_seller_model = &(array[0]); // every typeID has at least one model
         this->array = array;
     };
+    int getNumOfModels()
+    {
+        return this->num_of_models;
+    };
+    Model* getModelsArray()
+    {
+        return this->array;
+    };
+    friend bool operator==(const ModelsArray& models_array1, const ModelsArray& models_array2);
+    friend bool operator<(const ModelsArray& models_array1, const ModelsArray& models_array2);
 };
+
+bool operator==(const ModelsArray& models_array1, const ModelsArray& models_array2)
+{
+    return models_array1.typeID == models_array2.typeID;
+}
+
+bool operator<(const ModelsArray& models_array1, const ModelsArray& models_array2)
+{
+    return models_array1.typeID < models_array2.typeID;
+}
+
+bool operator>(const ModelsArray& models_array1, const ModelsArray& models_array2)
+{
+    return !(models_array1 < models_array2) && !(models_array1 == models_array2);
+}
 #endif

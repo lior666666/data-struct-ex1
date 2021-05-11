@@ -13,6 +13,7 @@ public:
     Model() = default;
     ~Model() = default;
     Model(const Model& model) = default;
+    friend bool operator==(const Model& model1, const Model& model2);
     friend bool operator<(const Model& model1, const Model& model2);
     Model(int typeID, int modelID)
     {
@@ -38,6 +39,13 @@ public:
     }
 };
 
+bool operator==(const Model& model1, const Model& model2)
+{
+    return model1.score == model2.score &&
+            model1.typeID == model2.typeID &&
+            model1.modelID == model2.modelID;
+}
+
 bool operator<(const Model& model1, const Model& model2)
 {
     if(model1.score == model2.score)
@@ -49,5 +57,10 @@ bool operator<(const Model& model1, const Model& model2)
         return model1.typeID < model2.typeID;
     }
     return model1.score < model2.score;
+}
+
+bool operator>(const Model& model1, const Model& model2)
+{
+    return !(model1 < model2) && !(model1 == model2);
 }
 #endif

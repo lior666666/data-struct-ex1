@@ -305,13 +305,13 @@ class AvlTree
             return this->next->node_height; 
         }  
         // returns the data of the actual object we need. (maybee we won't need that one.) 
-        T getNodeData(T data)
+        T* getNodeData(T data)
         {
             AvlTree<T>* node = findNode(data, this->next);  
             if(node == NULL)
-                return 0;
-            return node->data;      
-        }  
+                return NULL;
+            return &(node->data);      
+        } 
         // insert data to a left son of a specific node in the tree. (usfull when we are building a tree from scratch node by node.)
         void insertLeftSon(T data, AvlTree<T>* tree_node)
         {
