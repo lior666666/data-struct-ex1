@@ -8,6 +8,7 @@ class TypeTree
 {
     int typeID;
     AvlTree<Model>* models_tree;
+    AvlTree<Model>* lowest_model;
 public:
     TypeTree() = default;
     TypeTree(const TypeTree& type_tree) = default;
@@ -20,6 +21,7 @@ public:
     TypeTree(int typeID, bool is_dummy)
     {
         this->typeID = typeID;
+        this->lowest_model = NULL;
         if (is_dummy)
         {
             this->models_tree = NULL;
@@ -40,6 +42,10 @@ public:
     AvlTree<Model> getModelsTree()
     {
         return *(this->models_tree);
+    }
+    AvlTree<Model>* getLowestModel()
+    {
+        return this->lowest_model;
     }
 };
 

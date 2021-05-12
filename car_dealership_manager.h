@@ -13,6 +13,8 @@ class CarDealershipManager
     AvlTree<TypeTree> zero_tree;
     int max_model_sales;
     Model* best_seller_model;
+    AvlTree<Model>* lowest_model;
+    AvlTree<TypeTree>* lowest_zero_model;
 public:
     CarDealershipManager()
     {
@@ -21,6 +23,7 @@ public:
         this->zero_tree = *(new AvlTree<TypeTree>());
         this->max_model_sales = 0;
         this->best_seller_model = NULL;
+        this->lowest_model = NULL;
     };
 
     ~CarDealershipManager()
@@ -131,43 +134,122 @@ public:
         return SUCCESS;
     };
 
-    int GetNegativeScoreModels(AvlTree<Model>* models_tree, int models_to_save, int* save_counter, int* types, int* models)
+    int GetZeroModelsInTypeTree(AvlTree<Model>* min_model, int numOfModels, int save_counter, int* types, int* models)
     {
-        if (models_to_save == 0)
+        Model* model;
+        AvlTree<Model>* right_model;
+        while (min_model != NULL) // save models in type tree
         {
-            return models_to_save; //the number of models that left to save
+            model = min_model->getData(); //o(1)
+            types[save_counter] = model->getTypeID();
+            models[save_counter] = model->getModelID();
+            save_counter++;
+            if (save_counter == numOfModels)
+            {
+                return save_counter;
+            }
+            right_model = min_model->getRight();
+            while (right_model != NULL) // save right branch
+            {
+                 model = right_model->getData(); //o(1)
+                 types[save_counter] = model->getTypeID();
+                 models[save_counter] = model->getModelID();
+                save_counter++;
+                 if (save_counter == numOfModels)
+                 {
+                     return save_counter;
+                }
+                right_model = (*right_model).getRight(); //o(1)
+             }
+            min_model = (*min_model).getParent(); //o(1)
         }
-        if(models_tree->getLeft() != NULL)
+        return save_counter;
+    }
+
+    int GetZeroModels(int numOfModels, int save_counter, int* types, int* models)
+    {
+        TypeTree* type_tree;
+        Model* model;
+        AvlTree<TypeTree>* min_tree = this->lowest_zero_model;
+        AvlTree<TypeTree>* right_tree;
+        AvlTree<Model>* min_model;
+        while (min_tree != NULL)
         {
-            models_to_save = GetNegativeScoreModels(models_tree->getLeft(), models_to_save, save_counter, types, models);
+            type_tree = min_tree->getData(); //o(1)
+            min_model = type_tree->getLowestModel(); //o(1)
+            save_counter = GetZeroModelsInTypeTree(min_model, numOfModels, save_counter, types, models);
+            if (save_counter == numOfModels)
+            {
+                return save_counter;
+            }
+            right_tree = min_tree->getRight();
+            while (right_tree != NULL) // print right branch
+            {
+                type_tree = right_tree->getData(); //o(1)
+                min_model = type_tree->getLowestModel(); //o(1)
+                save_counter = GetZeroModelsInTypeTree(min_model, numOfModels, save_counter, types, models);
+                if (save_counter == numOfModels)
+                {
+                    return save_counter;
+                }
+                right_tree = (*right_tree).getRight(); //o(1)
+            }
+            min_tree = (*min_tree).getParent(); //o(1)
         }
-        if (models_to_save == 0)
-        {
-            return models_to_save; //the number of models that left to save
-        }
-        Model* model = models_tree->getData();
-        if (model->getScore() >= 0)
-        {
-            return models_to_save;
-        }
-        types[*save_counter] = model->getTypeID();
-        models[*save_counter] = model->getModelID();
-        (*save_counter)++;
-        models_to_save--;
-        if(models_tree->getRight() != NULL)
-        {
-            models_to_save = GetNegativeScoreModels(models_tree->getRight(), models_to_save, save_counter, types, models);
-        }
-        return models_to_save;
+        return save_counter;
     }
 
     StatusType GetWorstModels(int numOfModels, int* types, int* models)
     {
-        int save_counter = 0;;
-        if(this->models_tree.getLeft() != NULL)
+        Model* model;
+        int save_counter = 0;
+        bool is_print_zero = false;
+        AvlTree<Model>* min_model = this->lowest_model;
+        AvlTree<Model>* right_model;
+        while (min_model != NULL)
         {
-            GetNegativeScoreModels(this->models_tree.getLeft(), numOfModels, &save_counter, types, models);
+            model = min_model->getData(); //o(1)
+            if (!is_print_zero && model->getScore() > 0) // first time of positive - check zero_tree
+            {
+                save_counter = GetZeroModels(numOfModels, save_counter, types, models);
+                if (save_counter == numOfModels)
+                {
+                    return SUCCESS;
+                }
+                is_print_zero = true;
+            }
+            types[save_counter] = model->getTypeID();
+            models[save_counter] = model->getModelID();
+            save_counter++;
+            if (save_counter == numOfModels)
+            {
+                return SUCCESS;
+            }
+            right_model = min_model->getRight();
+            while (right_model != NULL) // print right branch
+            {
+                model = right_model->getData(); //o(1)
+                if (!is_print_zero && model->getScore() > 0) // first time of positive - check zero_tree
+                {
+                    save_counter = GetZeroModels(numOfModels, save_counter, types, models);
+                    if (save_counter == numOfModels)
+                    {
+                        return SUCCESS;
+                    }
+                    is_print_zero = true;
+                }
+                types[save_counter] = model->getTypeID();
+                models[save_counter] = model->getModelID();
+                save_counter++;
+                if (save_counter == numOfModels)
+                {
+                    return SUCCESS;
+                }
+                right_model = (*right_model).getRight(); //o(1)
+            }
+            min_model = (*min_model).getParent(); //o(1)
         }
+        return (save_counter == numOfModels) ? SUCCESS : FAILURE;
     }
 };
 #endif

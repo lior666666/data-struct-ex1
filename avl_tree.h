@@ -307,6 +307,10 @@ class AvlTree
         {
             return this->right;
         }
+        AvlTree<T>* getParent()
+        {
+            return this->parent;
+        }
         // gets the height of the tree. (maybee we won't need that one.)    
         int getHeight()
         {
