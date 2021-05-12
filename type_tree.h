@@ -31,6 +31,10 @@ public:
             this->models_tree = new AvlTree<Model>();
         }
     }
+    int getTypeID()
+    {
+        return this->typeID;
+    }
     bool insertModel(Model model)
     {
         return this->models_tree->insertElement(model);

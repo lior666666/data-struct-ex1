@@ -24,6 +24,7 @@ public:
         this->max_model_sales = 0;
         this->best_seller_model = NULL;
         this->lowest_model = NULL;
+        this->lowest_zero_model = NULL;
     };
 
     ~CarDealershipManager()
@@ -54,6 +55,10 @@ public:
         TypeTree* type_to_delete_in_zero_tree = this->zero_tree.getNodeData(*dummy_tree); //o(log(n))
         if (type_to_delete_in_zero_tree != NULL)
         {
+            if ((*this->lowest_zero_model->getData()) == *type_to_delete_in_zero_tree)
+            {
+                this->lowest_zero_model = this->lowest_zero_model->getParent();
+            }
             (*type_to_delete_in_zero_tree).getModelsTree().clearTree(); //o(m)
             this->zero_tree.removeElement(*type_to_delete_in_zero_tree); //o(log(n))
         }
@@ -64,6 +69,10 @@ public:
         for (int i = 0; i < (*type_to_delete).getNumOfModels(); i++) //o(m)
         {
             model_to_delete = (*type_to_delete).getModelsArray()[i];
+            if (*(this->lowest_model->getData()) == model_to_delete)
+            {
+                this->lowest_model = this->lowest_model->getParent();
+            }
             if (model_to_delete.getScore() != 0)
             {
                 this->models_tree.removeElement(model_to_delete); //o(log(M))
@@ -101,13 +110,22 @@ public:
         {
             if (new_score != 0) //after the complain - the score is not 0 so the model stay in models_tree
             {
-                (*(this->models_tree.getNodeData(model_to_complain))).addComplain(months); //o(log(M))
+                Model* update_model = (*(this->models_tree.getNodeData(model_to_complain))).addComplain(months); //o(log(M))
+                if (*(this->lowest_model->getData()) > *update_model)
+                {
+                    this->lowest_model = this->models_tree.getNode(*update_model);
+                }
             }
             else //after the complain - the score is 0 so the model goes to zero_tree
             {
+                if (*(this->lowest_model->getData()) == model_to_complain)
+                {
+                    this->lowest_model = this->lowest_model->getParent();
+                }
                 this->models_tree.removeElement(model_to_complain); //o(log(M))
                 TypeTree* dummy_tree = new TypeTree(typeID, true); //o(1)
                 TypeTree* type_in_zero_tree = this->zero_tree.getNodeData(*dummy_tree); //o(log(n))
+                ///////////if type_in_zero_tree==null need to insert
                 Model* model_to_complain_in_zero_tree = new Model(model_to_complain); //o(1)
                 model_to_complain_in_zero_tree->addComplain(months); //o(1)
                 if (!type_in_zero_tree->insertModel(*model_to_complain_in_zero_tree)) //o(log(M))

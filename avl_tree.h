@@ -316,6 +316,11 @@ class AvlTree
         {
             return this->next->node_height; 
         }  
+        AvlTree<T>* getNode(T data)
+        {
+            AvlTree<T>* node = findNode(data, this->next);  
+            return node;      
+        } 
         // returns the data of the actual object we need. (maybee we won't need that one.) 
         T* getNodeData(T data)
         {
