@@ -7,6 +7,7 @@
 class TypeTree
 {
     int typeID;
+    int number_of_models;
     AvlTree<Model>* models_tree;
     AvlTree<Model>* lowest_model;
 public:
@@ -18,17 +19,21 @@ public:
     {
         (*this->models_tree).clearTree();
     };
-    TypeTree(int typeID, bool is_dummy)
+    TypeTree(int typeID, bool is_dummy, Model* first_model_in_tree)
     {
         this->typeID = typeID;
-        this->lowest_model = NULL;
         if (is_dummy)
         {
             this->models_tree = NULL;
+            this->lowest_model = NULL;
+            this->number_of_models = 0;
         }
         else
         {
             this->models_tree = new AvlTree<Model>();
+            this->models_tree->insertElement(*first_model_in_tree);
+            this->lowest_model = this->models_tree->getNode(*first_model_in_tree);
+            this->number_of_models = 1;
         }
     }
     int getTypeID()
@@ -37,11 +42,29 @@ public:
     }
     bool insertModel(Model model)
     {
-        return this->models_tree->insertElement(model);
+        bool is_inserted = this->models_tree->insertElement(model);
+        if (model < *(this->lowest_model->getData()))
+        {
+            this->lowest_model = this->models_tree->getNode(model);
+        }
+        if (is_inserted)
+        {
+            this->number_of_models++;
+        }
+        return is_inserted;
     }
     bool removeModel(Model model)
     {
-        return this->models_tree->removeElement(model);
+        if (model == *(this->lowest_model->getData()))
+        {
+            this->lowest_model = this->lowest_model->getParent();
+        }
+        bool is_remove = this->models_tree->removeElement(model);
+        if (is_remove)
+        {
+            this->number_of_models--;
+        }
+        return is_remove;
     }
     AvlTree<Model> getModelsTree()
     {
@@ -50,6 +73,10 @@ public:
     AvlTree<Model>* getLowestModel()
     {
         return this->lowest_model;
+    }
+    int getModelsTreeLength()
+    {
+        return this->number_of_models;
     }
 };
 

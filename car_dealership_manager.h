@@ -51,7 +51,7 @@ public:
         }
 
         //********delete from zero_tree********
-        TypeTree* dummy_tree = new TypeTree(typeID, true); //o(1)
+        TypeTree* dummy_tree = new TypeTree(typeID, true, NULL); //o(1)
         TypeTree* type_to_delete_in_zero_tree = this->zero_tree.getNodeData(*dummy_tree); //o(log(n))
         if (type_to_delete_in_zero_tree != NULL)
         {
@@ -123,29 +123,49 @@ public:
                     this->lowest_model = this->lowest_model->getParent();
                 }
                 this->models_tree.removeElement(model_to_complain); //o(log(M))
-                TypeTree* dummy_tree = new TypeTree(typeID, true); //o(1)
+                TypeTree* dummy_tree = new TypeTree(typeID, true, NULL); //o(1)
                 TypeTree* type_in_zero_tree = this->zero_tree.getNodeData(*dummy_tree); //o(log(n))
-                ///////////if type_in_zero_tree==null need to insert
                 Model* model_to_complain_in_zero_tree = new Model(model_to_complain); //o(1)
                 model_to_complain_in_zero_tree->addComplain(months); //o(1)
-                if (!type_in_zero_tree->insertModel(*model_to_complain_in_zero_tree)) //o(log(M))
+                if (type_in_zero_tree == NULL) // type id is not in the zero_tree --> this is the first zero score for that type
                 {
-                    return FAILURE; //for debugging. It should not happen!!
+                    type_in_zero_tree = new TypeTree(typeID, false, model_to_complain_in_zero_tree); //o(1)
+                    this->zero_tree.insertElement(*type_in_zero_tree); //o(log(n))
+                    if (*type_in_zero_tree < *(this->lowest_zero_model->getData())) //o(1)
+                    {
+                        this->lowest_zero_model = this->zero_tree.getNode(*type_in_zero_tree); //o(log(n))
+                    }
+                }
+                else
+                {
+                    type_in_zero_tree->insertModel(*model_to_complain_in_zero_tree); //o(log(n))
                 }
                 delete dummy_tree;
             }
         }
         else //the model in zero_tree
         {
-            TypeTree* dummy_tree = new TypeTree(typeID, true); //o(1)
+            TypeTree* dummy_tree = new TypeTree(typeID, true, NULL); //o(1)
             TypeTree* type_in_zero_tree = this->zero_tree.getNodeData(*dummy_tree); //o(log(n))
             if (!type_in_zero_tree->removeModel(model_to_complain)); //o(log(M))
             {
                 return FAILURE; //for debugging. It should not happen!!
             }
+            if (type_in_zero_tree->getModelsTreeLength() == 0) // the model_to_complain was the only one in type_in_zero_tree --> remove type_in_zero_tree
+            {
+                if (*type_in_zero_tree == *(this->lowest_zero_model->getData()))
+                {
+                    this->lowest_zero_model = this->lowest_zero_model->getParent();
+                }
+                this->zero_tree.removeElement(*type_in_zero_tree); //o(log(n))
+            }
             Model* model_to_complain_in_models_tree = new Model(model_to_complain); //o(1)
             model_to_complain_in_models_tree->addComplain(months); //o(1)
             this->models_tree.insertElement(*model_to_complain_in_models_tree); //o(log(M))
+            if (*(this->lowest_model->getData()) > *model_to_complain_in_models_tree) //o(1)
+            {
+                this->lowest_model = this->models_tree.getNode(*model_to_complain_in_models_tree); //o(log(M))
+            }
             delete dummy_tree;
         }
         delete dummy_models_array; //delete dummy
@@ -169,16 +189,16 @@ public:
             right_model = min_model->getRight();
             while (right_model != NULL) // save right branch
             {
-                 model = right_model->getData(); //o(1)
-                 types[save_counter] = model->getTypeID();
-                 models[save_counter] = model->getModelID();
+                model = right_model->getData(); //o(1)
+                types[save_counter] = model->getTypeID();
+                models[save_counter] = model->getModelID();
                 save_counter++;
-                 if (save_counter == numOfModels)
-                 {
-                     return save_counter;
+                if (save_counter == numOfModels)
+                {
+                    return save_counter;
                 }
                 right_model = (*right_model).getRight(); //o(1)
-             }
+            }
             min_model = (*min_model).getParent(); //o(1)
         }
         return save_counter;
