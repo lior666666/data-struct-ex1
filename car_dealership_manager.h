@@ -51,12 +51,9 @@ public:
         TypeTree* type_to_delete_in_zero_tree = this->zero_tree.getNodeData(dummy_tree); //o(log(n))
         if (type_to_delete_in_zero_tree != NULL)
         {
-            if (this->lowest_zero_model->getData() == *type_to_delete_in_zero_tree)
-            {
-                this->lowest_zero_model = this->lowest_zero_model->getParent();
-            }
-            (*type_to_delete_in_zero_tree).getModelsTree().clearTree(); //o(m)
+            type_to_delete_in_zero_tree->getModelsTree().clearTree(); //o(m)
             this->zero_tree.removeElement(*type_to_delete_in_zero_tree); //o(log(n))
+            this->lowest_zero_model = zero_tree.getMinNode(); // log n
         }
         //****************
 
@@ -64,15 +61,11 @@ public:
         for (int i = 0; i < (*type_to_delete).getNumOfModels(); i++) //o(m)
         {
             model_to_delete = (*type_to_delete).getModelsArray()[i];
-            if (this->lowest_model->getData() == model_to_delete)
-            {
-                this->lowest_model = this->lowest_model->getParent();
-            }
             if (model_to_delete.getScore() != 0)
             {
                 this->models_tree.removeElement(model_to_delete); //o(log(M))
             }
-            delete &model_to_delete; //delete each model in the array
+            this->lowest_model = this->models_tree.getMinNode(); // log M 
         }
         //****************
 
@@ -201,7 +194,7 @@ public:
                     return FAILURE;
                 }
                 this->lowest_model = models_tree.getMinNode(); // log M 
-                Model* update_model = (*(this->models_tree.getNodeData(model_to_complain))).addComplain(months); //o(log(M))
+                Model* update_model = this->models_tree.getNodeData(model_to_complain)->addComplain(months); //o(log(M))
                 models_tree.insertElement(*update_model);
                 this->lowest_model = models_tree.getMinNode(); 
             }
@@ -234,14 +227,14 @@ public:
         else //the model in zero_tree
         {
             TypeTree dummy_tree = TypeTree(typeID, 0, NULL, NULL); //o(1)
-            TypeTree* type_in_zero_tree = this->zero_tree.getNodeData(dummy_tree); //o(log(n))
-            if (!type_in_zero_tree->removeModel(model_to_complain)); //o(log(M))
+            AvlTree<TypeTree>* type_in_zero_tree = this->zero_tree.getNode(dummy_tree); // log n
+            if (!type_in_zero_tree->getData().removeModel(model_to_complain)); //o(log(M))
             {
                 return FAILURE; //for debugging. It should not happen!!
             }
-            if (type_in_zero_tree->getModelsTreeLength() == 0) // the model_to_complain was the only one in type_in_zero_tree --> remove type_in_zero_tree
+            if (type_in_zero_tree->isEmpty())
             {
-                this->zero_tree.removeElement(*type_in_zero_tree); //o(log(n))
+                this->zero_tree.removeElement(type_in_zero_tree->getData()); //o(log(n))
                 this->lowest_zero_model = zero_tree.getMinNode(); // log n
             }
             Model model_to_complain_in_models_tree = Model(model_to_complain); //o(1)
