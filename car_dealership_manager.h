@@ -249,7 +249,7 @@ public:
                 lowest_model = models_tree.getMinNode(); 
             }
         }
-        
+        return SUCCESS;
               
     }
 
@@ -372,6 +372,27 @@ public:
         }
         return (save_counter == numOfModels) ? SUCCESS : FAILURE;
     }
+
+    StatusType GetBestSellerModelByType(int typeID, int *modelID)
+    {
+        if(typeID == 0)
+        {
+            int id = lowest_model->getData().getModelID();
+            modelID = &id;
+            return SUCCESS; 
+        }
+        else
+        {
+            ModelsArray dummy_array =  ModelsArray(typeID); 
+            ModelsArray* type_array =  types_tree.getNodeData(dummy_array);
+            if(type_array == NULL)
+                return FAILURE; 
+            int id = type_array->getBestSellerModel().getModelID(); 
+            modelID = &id;
+            return SUCCESS;     
+        }    
+    }
+
 };
 #endif
 
