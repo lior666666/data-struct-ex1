@@ -46,6 +46,10 @@ public:
     {
         return this->modelID;
     }
+    int getNumOfSales()
+    {
+        return this->num_of_sales;
+    }
 };
 
 bool operator==(const Model& model1, const Model& model2)

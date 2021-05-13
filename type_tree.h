@@ -12,38 +12,34 @@ class TypeTree
     AvlTree<Model>* lowest_model;
 public:
     TypeTree() = default;
+
     TypeTree(const TypeTree& type_tree) = default;
+
     friend bool operator==(const TypeTree& type_tree1, const TypeTree& type_tree2);
+
     friend bool operator<(const TypeTree& type_tree1, const TypeTree& type_tree2);
+
     ~TypeTree()
     {
         (*this->models_tree).clearTree();
     };
-    TypeTree(int typeID, bool is_dummy, Model* first_model_in_tree)
+
+    TypeTree(int typeID, int number_of_models, AvlTree<Model>* models_tree, AvlTree<Model>* lowest_node) // if you want to make dummy, just put NULL into models_tree
+    : typeID(typeID), number_of_models(number_of_models)
     {
-        this->typeID = typeID;
-        if (is_dummy)
-        {
-            this->models_tree = NULL;
-            this->lowest_model = NULL;
-            this->number_of_models = 0;
-        }
-        else
-        {
-            this->models_tree = new AvlTree<Model>();
-            this->models_tree->insertElement(*first_model_in_tree);
-            this->lowest_model = this->models_tree->getNode(*first_model_in_tree);
-            this->number_of_models = 1;
-        }
+        this->models_tree = models_tree; 
+        this->lowest_model = lowest_node;
     }
+
     int getTypeID()
     {
         return this->typeID;
     }
+
     bool insertModel(Model model)
     {
         bool is_inserted = this->models_tree->insertElement(model);
-        if (model < *(this->lowest_model->getData()))
+        if (model < this->lowest_model->getData())
         {
             this->lowest_model = this->models_tree->getNode(model);
         }
@@ -53,11 +49,12 @@ public:
         }
         return is_inserted;
     }
+
     bool removeModel(Model model)
     {
-        if (model == *(this->lowest_model->getData()))
+        if (model == this->lowest_model->getData())
         {
-            this->lowest_model = this->lowest_model->getParent();
+            this->lowest_model = this->models_tree->getMinNode();
         }
         bool is_remove = this->models_tree->removeElement(model);
         if (is_remove)
@@ -66,14 +63,17 @@ public:
         }
         return is_remove;
     }
+
     AvlTree<Model> getModelsTree()
     {
         return *(this->models_tree);
     }
+
     AvlTree<Model>* getLowestModel()
     {
         return this->lowest_model;
     }
+
     int getModelsTreeLength()
     {
         return this->number_of_models;
