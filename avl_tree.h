@@ -64,7 +64,8 @@ class AvlTree
             left_to_top_pointer->right = this;
             this->left = right_to_left_pointer;
             this->parent = left_to_top_pointer;
-            right_to_left_pointer->parent = this; 
+            if(right_to_left_pointer != NULL)
+                right_to_left_pointer->parent = this; 
             this-> updateHeight();
             left_to_top_pointer-> updateHeight();
             return left_to_top_pointer;
@@ -79,7 +80,8 @@ class AvlTree
             right_to_top_pointer->left = this;
             this->right = left_to_right_pointer;
             this->parent = right_to_top_pointer;
-            left_to_right_pointer->parent = this; 
+            if(left_to_right_pointer != NULL)
+                left_to_right_pointer->parent = this; 
             this-> updateHeight();
             right_to_top_pointer-> updateHeight();
             return right_to_top_pointer;
@@ -164,13 +166,15 @@ class AvlTree
             if(data < tree_node->data)
             {
                 tree_node->left = this->removeNode(data, tree_node->left);
-                tree_node->left->parent = tree_node; 
+                if(tree_node->left !=NULL)
+                    tree_node->left->parent = tree_node; 
             }
 
             else if(data > tree_node->data)
             {
                 tree_node->right = this->removeNode(data, tree_node->right);
-                tree_node->right->parent = tree_node;
+                if(tree_node->right !=NULL)
+                    tree_node->right->parent = tree_node;
             }
 
             else
@@ -317,6 +321,7 @@ class AvlTree
             {
                 AvlTree<T>* newTreeNode = createNewTreeNode(data); 
                 this->next = newTreeNode; 
+                this->next->parent = NULL; 
                 this->min_node = findMinNode(); 
                 return true;
             }
@@ -337,6 +342,7 @@ class AvlTree
            if(node ==NULL)
                 return false; 
            this->next = removeNode(data, this->next); 
+           this->next->parent = NULL; 
            this->min_node = findMinNode();
            return true; 
         }
