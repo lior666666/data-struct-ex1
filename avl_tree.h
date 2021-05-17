@@ -9,15 +9,20 @@ class AvlTree
         AvlTree<T>* left;
         AvlTree<T>* next;
         AvlTree<T>* parent;
+         AvlTree<T>* min_node;
         int node_height; 
         // internal function to free and delete all the tree nodes 
         void cleanTree(AvlTree<T>* node)
         {
-            if(node == NULL)
-                return; 
-            this->cleanTree(node->left);
-            this->cleanTree(node->right);   
-            delete node; 
+            printf("t");
+            if(node != NULL)
+            {
+                printf("*in_if*");
+                this->cleanTree(node->next);
+                this->cleanTree(node->left);
+                this->cleanTree(node->right);   
+                delete node; 
+            }
         }
         // internal function, gets the balance factor of the node. 
         int getBalanceFactor(AvlTree<T>* tree_node)
@@ -63,7 +68,8 @@ class AvlTree
             left_to_top_pointer->right = this;
             this->left = right_to_left_pointer;
             this->parent = left_to_top_pointer;
-            right_to_left_pointer->parent = this; 
+            if(right_to_left_pointer != NULL)
+                right_to_left_pointer->parent = this; 
             this-> updateHeight();
             left_to_top_pointer-> updateHeight();
             return left_to_top_pointer;
@@ -78,7 +84,8 @@ class AvlTree
             right_to_top_pointer->left = this;
             this->right = left_to_right_pointer;
             this->parent = right_to_top_pointer;
-            left_to_right_pointer->parent = this; 
+            if(left_to_right_pointer != NULL)
+                left_to_right_pointer->parent = this; 
             this-> updateHeight();
             right_to_top_pointer-> updateHeight();
             return right_to_top_pointer;
@@ -163,13 +170,15 @@ class AvlTree
             if(data < tree_node->data)
             {
                 tree_node->left = this->removeNode(data, tree_node->left);
-                tree_node->left->parent = tree_node; 
+                if(tree_node->left !=NULL)
+                    tree_node->left->parent = tree_node; 
             }
 
             else if(data > tree_node->data)
             {
                 tree_node->right = this->removeNode(data, tree_node->right);
-                tree_node->right->parent = tree_node;
+                if(tree_node->right !=NULL)
+                    tree_node->right->parent = tree_node;
             }
 
             else
@@ -267,9 +276,9 @@ class AvlTree
 
             int middle = (right-left)/2 + left; 
             AvlTree<T>* new_node = createNewTreeNode(array[middle]);
-            new_node->right = buildTree(T* array, middle + 1, right);
+            new_node->right = buildTree(array, middle + 1, right);
             new_node->right->parent = new_node;
-            new_node->left = buildTree(T* array, left, middle - 1);
+            new_node->left = buildTree(array, left, middle - 1);
             new_node->left->parent = new_node;
             new_node->updateHeight(); 
             return new_node; 
@@ -300,13 +309,13 @@ class AvlTree
 
         AvlTree<T>(T* array, int size_of_tree) // building AVL tree from a sorted array, O(n) compleccity. 
         {
-           buildTree(this.next(), array, 0, size_of_tree );
+           this->next = buildTree(array, 0, size_of_tree );
         }
 
 
         ~AvlTree<T>()
         {  
-            this->cleanTree(this->next);   
+            this->cleanTree(this->next); 
         }
         // insert the data to the tree and keep it balanced. returns false if this data is already inside the tree and true if it's not and it put it now.
         bool insertElement(T data)
@@ -314,8 +323,10 @@ class AvlTree
             //add condition to check if it's already in! 
             if(this->next == NULL) // MAKE INTERNAL FUNC
             {
-                AvlTree<T>* newTreeNode = createNewTreeNode(data); ;
+                AvlTree<T>* newTreeNode = createNewTreeNode(data); 
                 this->next = newTreeNode; 
+                this->next->parent = NULL; 
+                this->min_node = findMinNode(); 
                 return true;
             }
             else
@@ -324,17 +335,23 @@ class AvlTree
                     return false; 
                 this->next = this->insert(data, this->next); 
                 this->next->parent = NULL; 
+                this->min_node = findMinNode();
                 return true;   
             }   
         }
         // remove a data from the tree and keep it balanced. 
         bool removeElement(T data)
         {
-           AvlTree<T>* node = findNode(data, this->next);
-           if(node ==NULL)
-                return false; 
-           this->next = removeNode(data, this->next); 
-           return true; 
+            AvlTree<T>* node = findNode(data, this->next);
+            if (node == NULL)
+            {
+                return false;
+            }
+            printf("ronaldo");
+            this->next = removeNode(data, this->next); 
+            this->next->parent = NULL; 
+            this->min_node = findMinNode();
+            return true; 
         }
         // prints all the data in the tree by order from the smallest key to the biggest one. 
         void printTree()
@@ -403,9 +420,14 @@ class AvlTree
             this->next = NULL;
         }
 
-        AvlTree<T>* getMinNode() // log(n)
+        AvlTree<T>* findMinNode() // log(n)
         {
             return findMostLeftNode(this->next);
+        }
+
+        AvlTree<T>* getMinNode() // log(n)
+        {
+            return min_node;
         }
         bool isEmpty()
         {

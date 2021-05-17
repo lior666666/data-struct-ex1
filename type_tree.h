@@ -9,7 +9,6 @@ class TypeTree
     int typeID;
     int number_of_models;
     AvlTree<Model>* models_tree;
-    AvlTree<Model>* lowest_model;
 public:
     TypeTree() = default;
 
@@ -24,11 +23,10 @@ public:
         (*this->models_tree).clearTree();
     };
 
-    TypeTree(int typeID, int number_of_models, AvlTree<Model>* models_tree, AvlTree<Model>* lowest_node) // if you want to make dummy, just put NULL into models_tree
+    TypeTree(int typeID, int number_of_models, AvlTree<Model>* models_tree) // if you want to make dummy, just put NULL into models_tree
     : typeID(typeID), number_of_models(number_of_models)
     {
         this->models_tree = models_tree; 
-        this->lowest_model = lowest_node;
     }
 
     int getTypeID()
@@ -39,10 +37,6 @@ public:
     bool insertModel(Model model)
     {
         bool is_inserted = this->models_tree->insertElement(model);
-        if (model < this->lowest_model->getData())
-        {
-            this->lowest_model = this->models_tree->getNode(model);
-        }
         if (is_inserted)
         {
             this->number_of_models++;
@@ -52,10 +46,6 @@ public:
 
     bool removeModel(Model model)
     {
-        if (model == this->lowest_model->getData())
-        {
-            this->lowest_model = this->models_tree->getMinNode();
-        }
         bool is_remove = this->models_tree->removeElement(model);
         if (is_remove)
         {
@@ -71,7 +61,7 @@ public:
 
     AvlTree<Model>* getLowestModel()
     {
-        return this->lowest_model;
+        return this->models_tree->getMinNode();
     }
 
     int getModelsTreeLength()
