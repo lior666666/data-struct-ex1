@@ -1,4 +1,3 @@
-  
 #ifndef MODELS_ARRAY_H_
 #define MODELS_ARRAY_H_
 #include "model.h"
@@ -8,54 +7,84 @@ class ModelsArray
 {
     int typeID;
     int num_of_models;
-    int max_sales;
     Model best_seller_model;
     Model* array;
 public:
     ModelsArray() = default;
 
-    ModelsArray(const ModelsArray& models_array1) = default;
+    ModelsArray(const ModelsArray& models_array1) :
+    typeID(models_array1.typeID), num_of_models(models_array1.num_of_models), best_seller_model(models_array1.best_seller_model)
+    {
+        Model* array = new Model[num_of_models];
+        for(int i = 0; i < num_of_models; i++)
+        {
+            array[i] = Model(models_array1.array[i]);
+        }
+        this->array = array;
+    }
+
+    ModelsArray& operator=(const ModelsArray& models_array1)
+    {
+        if (this == &models_array1)
+        {
+		    return *this;
+        }
+        delete[] this->array;
+        this->array = new Model[models_array1.num_of_models];
+        this->num_of_models = models_array1.num_of_models;
+        this->typeID = models_array1.typeID;
+        this->best_seller_model = models_array1.best_seller_model;
+        for(int i = 0; i < num_of_models; i++)
+        {
+            array[i] = models_array1.array[i];
+        }
+        return *this;
+    }
 
     ~ModelsArray()
     {
         if (this->array != NULL)
         {
-            for(int i = 0; i < this->num_of_models; i++)
-            {
-                delete (&(this->array))[i];
-            }
-            delete[] &(this->array);
+            delete[] this->array;
         }
-    };
+    }
 
-    ModelsArray(int typeID) : typeID(typeID), num_of_models(0), max_sales(0) {}; //dummy
+    ModelsArray(int typeID) : typeID(typeID), num_of_models(0)
+     {
+         array = NULL; 
+     } //dummy
 
     //check arg before calling the constructor!!!
-    ModelsArray(int typeID, int num_of_models) : typeID(typeID), num_of_models(num_of_models), max_sales(0)
+    ModelsArray(int typeID, int num_of_models) : typeID(typeID), num_of_models(num_of_models)
     {
         Model* array = new Model[num_of_models];
         for(int i = 0; i < num_of_models; i++)
         {
-            array[i] = *(new Model(typeID, i));
+            array[i] = Model(typeID, i);
         }
         this->best_seller_model = array[0]; // every typeID has at least one model
         this->array = array;
-    };
+    }
+
+    int getTypeID()
+    {
+        return this->typeID;
+    }
 
     int getNumOfModels()
     {
         return this->num_of_models;
-    };
+    }
 
     Model* getModelsArray()
     {
         return this->array;
-    };
+    }
 
     Model getBestSellerModel()
     {
         return this->best_seller_model;
-    };
+    }
 
     void updateBestSellerModel(Model new_model)
     {

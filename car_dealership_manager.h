@@ -26,10 +26,10 @@ public:
         {
             return FAILURE; //already exist typeID
         }
-        //AvlTree<Model>* models_tree = new AvlTree<Model>(new_type.getModelsArray(), new_type.getNumOfModels()); // O(m)  special algoritm for building AVL tree. 
+        AvlTree<Model>* models_tree = new AvlTree<Model>(new_type.getModelsArray(), new_type.getNumOfModels()); // O(m)  special algoritm for building AVL tree. 
 
-        //TypeTree new_tree_node = TypeTree(typeID, numOfModels, models_tree);    
-        //zero_tree.insertElement(new_tree_node); // o(log n)
+        TypeTree new_tree_node = TypeTree(typeID, numOfModels, models_tree);    
+        zero_tree.insertElement(new_tree_node); // o(log n)
         return SUCCESS;
     };
 
@@ -39,32 +39,32 @@ public:
         ModelsArray* type_to_delete = this->types_tree.getNodeData(dummy_models_array); //o(log(n))
         Model model_to_delete;
         if (type_to_delete == NULL)
-        {
-            return FAILURE;
-        }
+       {
+           return FAILURE;
+       }
 
         //********delete from zero_tree********
-        TypeTree dummy_tree = TypeTree(typeID, 0, NULL); //o(1)
-        TypeTree* type_to_delete_in_zero_tree = this->zero_tree.getNodeData(dummy_tree); //o(log(n))
-        if (type_to_delete_in_zero_tree != NULL)
-        {
-            type_to_delete_in_zero_tree->getModelsTree().clearTree(); //o(m)
-            this->zero_tree.removeElement(*type_to_delete_in_zero_tree); //o(log(n))
-        }
+        // TypeTree dummy_tree = TypeTree(typeID, 0, NULL); //o(1)
+        // TypeTree* type_to_delete_in_zero_tree = this->zero_tree.getNodeData(dummy_tree); //o(log(n))
+        // if (type_to_delete_in_zero_tree != NULL)
+        // {
+        //     type_to_delete_in_zero_tree->getModelsTree().clearTree(); //o(m)
+        //     this->zero_tree.removeElement(*type_to_delete_in_zero_tree); //o(log(n))
+        // }
         //****************
 
         //********delete from models_tree********
-        for (int i = 0; i < (*type_to_delete).getNumOfModels(); i++) //o(m)
-        {
-            model_to_delete = (*type_to_delete).getModelsArray()[i];
-            if (model_to_delete.getScore() != 0)
-            {
-                this->models_tree.removeElement(model_to_delete); //o(log(M))
-            }
-        }
+        // for (int i = 0; i < type_to_delete->getNumOfModels(); i++) //o(m)
+        // {
+        //     model_to_delete = type_to_delete->getModelsArray()[i];
+        //     if (model_to_delete.getScore() != 0)
+        //     {
+        //         this->models_tree.removeElement(model_to_delete); //o(log(M))
+        //     }
+        // }
         //****************
 
-        this->types_tree.removeElement(*type_to_delete); //o(log(n)), delete the type from types_tree
+        this->types_tree.removeElement(dummy_models_array); //o(log(n)), delete the type from types_tree
         return SUCCESS;
     };
 
