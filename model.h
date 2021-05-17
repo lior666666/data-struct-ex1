@@ -25,12 +25,12 @@ public:
     }
     void addSale()
     {
-        this->num_of_sales = this->num_of_sales++;
+        this->num_of_sales = this->num_of_sales + 1;
         this->score = this->score+10;
     }
     Model* addComplain(int months)
     {
-        this->num_of_complaints = this->num_of_complaints++;
+        this->num_of_complaints = this->num_of_complaints + 1;
         this->score = this->score-(100/months);
         return this;
     }

@@ -268,9 +268,9 @@ class AvlTree
 
             int middle = (right-left)/2 + left; 
             AvlTree<T>* new_node = createNewTreeNode(array[middle]);
-            new_node->right = buildTree(T* array, middle + 1, right);
+            new_node->right = buildTree(array, middle + 1, right);
             new_node->right->parent = new_node;
-            new_node->left = buildTree(T* array, left, middle - 1);
+            new_node->left = buildTree(array, left, middle - 1);
             new_node->left->parent = new_node;
             new_node->updateHeight(); 
             return new_node; 
@@ -301,7 +301,7 @@ class AvlTree
 
         AvlTree<T>(T* array, int size_of_tree) // building AVL tree from a sorted array, O(n) compleccity. 
         {
-           buildTree(this.next(), array, 0, size_of_tree );
+           this->next = buildTree(array, 0, size_of_tree );
         }
 
 
