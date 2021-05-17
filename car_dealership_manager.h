@@ -255,9 +255,9 @@ public:
         int counter_zero = 0; 
         if(models_tree.getMinNode()->getData().getScore()> 0 )
         {
-            counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, 0, false);
+            counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, 0);
         }
-        int counter = goThroughModelsTree(models_tree.getMinNode(), numOfModels, types, models, counter_zero, false);
+        int counter = goThroughModelsTree(models_tree.getMinNode(), numOfModels, types, models, counter_zero);
         if(counter<numOfModels)
             return FAILURE;
         return SUCCESS;    
@@ -287,106 +287,96 @@ public:
         return false;     
             
     }
-    int goThroughModelsTree(AvlTree<Model>* starting_node, int numOfModels, int* types, int* models, int i, bool order_flag)
+    int goThroughModelsTreeInOrder(AvlTree<Model>* starting_node, int numOfModels, int* types, int* models, int i)
     {
-        int counter = 0;
-        int counter_zero = i; 
-        //in case we went through all nodes in this course. 
+        int counter = i; 
         if(starting_node == NULL)
         {
-            return i-1; 
+            return i; 
         }
         // in case we went through number of models that was asked. 
         if(i == numOfModels)
         {
-            return i; // think about that
+            return i; // to think about that
         }
-        // in case we got to the toot. we need to switch to regular inorder. 
-        if(starting_node->getParent() ==NULL)
+
+        counter =  goThroughModelsTreeInOrder(starting_node->getLeft(), numOfModels, types, models, counter); 
+        // do the actual function.
+        types[i] = starting_node->getData().getTypeID();
+        models[i] = starting_node->getData().getModelID();
+        // check if we need to switch to zero tree. 
+        if(checkForZeroRight(starting_node) == true)
         {
+            counter = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+        }  
+        counter = goThroughModelsTreeInOrder(starting_node->getRight(), numOfModels, types, models, counter); 
+        return counter + 1; 
+    }
+
+    
+    int goThroughModelsTree(AvlTree<Model>* starting_node, int numOfModels, int* types, int* models, int i)
+    {
+        int counter = i;
+        while(starting_node != NULL && counter<numOfModels)
+        {
+           // do the actual function.
             types[i] = starting_node->getData().getTypeID();
             models[i] = starting_node->getData().getModelID();
-            order_flag = true;
-
-            if(checkForZeroRight(starting_node) == true)
-            {
-                counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, i, false);
-            }   
-
-            counter = goThroughModelsTree(starting_node->getRight(), numOfModels, types, models, counter_zero++, true); 
-        }
-        // in case we before the root. 
-        else if(order_flag == false)
-        {
-            // do the actual function.
-            types[i] = starting_node->getData().getTypeID();
-            models[i] = starting_node->getData().getModelID();
+            counter++;
             // check if we need to switch to zero tree. 
             if(checkForZeroRight(starting_node) == true)
             {
-                counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, i, false);
-            }  
-
-            counter = goThroughModelsTree(starting_node->getRight(), numOfModels, types, models, counter_zero++, false); 
-            
+                counter = counter + goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+            }   
+            if(counter>numOfModels)
+                break; 
+            counter =  counter + goThroughModelsTreeInOrder(starting_node->getRight(),  numOfModels, types, models, counter);
+            // check if we need to switch to zero tree. 
             if(checkForZeroParent(starting_node) == true)
             {
-                counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, i, false);
-            }
-            counter = goThroughModelsTree(starting_node->getParent(), numOfModels, types, models, counter, false);     
-        }
-        // redular inorder, in case we in the right side of the tree. 
-        else
-        {
-            counter =  goThroughModelsTree(starting_node->getLeft(), numOfModels, types, models, counter_zero++, true); 
-            // do the actual function.
-            types[i] = starting_node->getData().getTypeID();
-            models[i] = starting_node->getData().getModelID();
-             // check if we need to switch to zero tree. 
-            if(checkForZeroRight(starting_node) == true)
-            {
-               counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, i, false);
-            }  
-            counter = goThroughModelsTree(starting_node->getRight(), numOfModels, types, models, counter, true); 
+                counter =  counter + goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+            } 
+            starting_node = starting_node->getParent();    
         }
         return counter; 
     }
 
-    int goThroughZeroTree(AvlTree<TypeTree>* starting_node, int numOfModels, int* types, int* models, int i, bool order_flag)
+    int goThroughZeroTree(AvlTree<TypeTree>* starting_node, int numOfModels, int* types, int* models, int i)
     {
+
         int counter = i;
-        //in case we went through all nodes in this course. 
+        while(starting_node != NULL && counter<numOfModels)
+        {
+           // do the actual function.
+            counter = counter + goThroughModelsTree(starting_node->getData().getModelsTree().getMinNode(), numOfModels, types, models, i);
+            if(counter>numOfModels)
+                break; 
+            counter =  counter + goThroughZeroTreeInOrder(starting_node->getRight(),  numOfModels, types, models, counter);
+ 
+            starting_node = starting_node->getParent();    
+        }
+        return counter; 
+    }
+    int goThroughZeroTreeInOrder (AvlTree<TypeTree>* starting_node, int numOfModels, int* types, int* models, int i)
+    {
+        int counter = i; 
         if(starting_node == NULL)
         {
-            return i-1; 
+            return i; 
         }
         // in case we went through number of models that was asked. 
         if(i == numOfModels)
         {
-            return i; // think about that
-        }
-        
-        if(starting_node->getParent() ==NULL)
-        {
-            counter = goThroughModelsTree(starting_node->getData().getModelsTree().findMinNode(), numOfModels, types, models, i, false); 
-            order_flag = true;
-            counter = goThroughZeroTree(starting_node->getRight(), numOfModels, types, models, counter, true); 
+            return i; // to think about that
         }
 
-        else if(order_flag == false)
-        {
-            // do the actual function.
-            counter = goThroughModelsTree(starting_node->getData().getModelsTree().findMinNode(), numOfModels, types, models, i, false);
-            counter = goThroughZeroTree(starting_node->getRight(), numOfModels, types, models, counter, false); 
-            counter = goThroughZeroTree(starting_node->getParent(), numOfModels, types, models, counter, false);     
-        }
-        else
-        {
-            counter = goThroughZeroTree(starting_node->getLeft(), numOfModels, types, models, i++, true); 
-            counter = goThroughModelsTree(starting_node->getData().getModelsTree().findMinNode(), numOfModels, types, models, counter, false);
-            counter = goThroughZeroTree(starting_node->getRight(), numOfModels, types, models, counter, true); 
-        }
-        return counter;
+        counter =  goThroughZeroTreeInOrder(starting_node->getLeft(), numOfModels, types, models, counter); 
+
+        // do the actual function.
+        counter = goThroughModelsTree(starting_node->getData().getModelsTree().getMinNode(), numOfModels, types, models, i);
+
+        counter = goThroughZeroTreeInOrder(starting_node->getRight(), numOfModels, types, models, counter); 
+        return counter + 1; 
     }
 
     // int GetZeroModelsInTypeTree(AvlTree<Model>* min_model, int numOfModels, int save_counter, int* types, int* models)
