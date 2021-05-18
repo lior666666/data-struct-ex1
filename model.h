@@ -15,6 +15,7 @@ public:
     Model(const Model& model) = default;
     friend bool operator==(const Model& model1, const Model& model2);
     friend bool operator<(const Model& model1, const Model& model2);
+    friend std::ostream& operator<<(std::ostream& os, const Model& c);
     Model(int typeID, int modelID)
     {
         this->typeID = typeID;
@@ -75,5 +76,10 @@ bool operator<(const Model& model1, const Model& model2)
 bool operator>(const Model& model1, const Model& model2)
 {
     return !(model1 < model2) && !(model1 == model2);
+}
+
+std::ostream& operator<<(std::ostream& os, const Model& c)
+{
+	return os << "model:" << c.typeID << ":" << c.modelID << "***";
 }
 #endif

@@ -26,10 +26,10 @@ public:
         {
             return FAILURE; //already exist typeID
         }
-        //AvlTree<Model>* models_tree = new AvlTree<Model>(new_type.getModelsArray(), new_type.getNumOfModels()); // O(m)  special algoritm for building AVL tree. 
+        AvlTree<Model>* models_tree = new AvlTree<Model>(new_type.getModelsArray(), new_type.getNumOfModels()); // O(m)  special algoritm for building AVL tree. 
 
-        //TypeTree new_tree_node = TypeTree(typeID, numOfModels, models_tree);    
-        //zero_tree.insertElement(new_tree_node); // o(log n)
+        TypeTree new_tree_node = TypeTree(typeID, numOfModels, models_tree);    
+        zero_tree.insertElement(new_tree_node); // o(log n)
         return SUCCESS;
     };
 
@@ -54,9 +54,9 @@ public:
         //****************
 
         //********delete from models_tree********
-        for (int i = 0; i < (*type_to_delete).getNumOfModels(); i++) //o(m)
+        for (int i = 0; i < type_to_delete->getNumOfModels(); i++) //o(m)
         {
-            model_to_delete = (*type_to_delete).getModelsArray()[i];
+            model_to_delete = type_to_delete->getModelsArray()[i];
             if (model_to_delete.getScore() != 0)
             {
                 this->models_tree.removeElement(model_to_delete); //o(log(M))
@@ -64,7 +64,7 @@ public:
         }
         //****************
 
-        this->types_tree.removeElement(*type_to_delete); //o(log(n)), delete the type from types_tree
+        this->types_tree.removeElement(dummy_models_array); //o(log(n)), delete the type from types_tree
         return SUCCESS;
     };
 
@@ -81,11 +81,11 @@ public:
         {
            return FAILURE;
         }
-        ModelsArray* model_to_change = real_Node_id->getNodeData(dummy_id); // log n
-        model_to_change->getModelsArray()[modelID].addSale(); // adding 1 sale + chanching total scores. 
+        ModelsArray model_to_change = real_Node_id->getData(); // log n
+        model_to_change.getModelsArray()[modelID].addSale(); // adding 1 sale + chanching total scores. 
 
-        Model updated_model =  model_to_change->getModelsArray()[modelID]; // the new model after update of sales. 
-        model_to_change->updateBestSellerModel(updated_model); // checks inside the function if it should update the min. 
+        Model updated_model = model_to_change.getModelsArray()[modelID]; // the new model after update of sales. 
+        model_to_change.updateBestSellerModel(updated_model); // checks inside the function if it should update the min. 
         if(updated_model.getNumOfSales() > best_seller_model.getNumOfSales())
         {
             this->best_seller_model = updated_model; 
@@ -112,10 +112,12 @@ public:
         // means there are models with 0 scores under this ID.
         if(real_Node_zero_tree_id != NULL)  
         { 
-            AvlTree<Model> zero_models_tree = real_Node_zero_tree_id->getData().getModelsTree();  
+            AvlTree<Model> zero_models_tree = real_Node_zero_tree_id->getData().getModelsTree(); 
+            //zero_models_tree.printTree();
             AvlTree<Model>* real_Model_Node = zero_models_tree.getNode(dummy_model); // log m
             if(real_Model_Node != NULL) // if the update model in the type tree
             {
+                //printf("jjj");
                 real_Node_zero_tree_id->getData().removeModel(dummy_model); // log m
 
                 if(zero_models_tree.isEmpty()) // in case there are no 0 score models under this ID. 

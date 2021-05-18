@@ -49,7 +49,10 @@ public:
         }
     }
 
-    ModelsArray(int typeID) : typeID(typeID), num_of_models(0) {} //dummy
+    ModelsArray(int typeID) : typeID(typeID), num_of_models(0)
+     {
+         array = NULL; 
+     } //dummy
 
     //check arg before calling the constructor!!!
     ModelsArray(int typeID, int num_of_models) : typeID(typeID), num_of_models(num_of_models)
@@ -108,6 +111,8 @@ public:
     friend bool operator==(const ModelsArray& models_array1, const ModelsArray& models_array2);
 
     friend bool operator<(const ModelsArray& models_array1, const ModelsArray& models_array2);
+
+    friend std::ostream& operator<<(std::ostream& os, const ModelsArray& c);
 };
 
 bool operator==(const ModelsArray& models_array1, const ModelsArray& models_array2)
@@ -123,5 +128,10 @@ bool operator<(const ModelsArray& models_array1, const ModelsArray& models_array
 bool operator>(const ModelsArray& models_array1, const ModelsArray& models_array2)
 {
     return !(models_array1 < models_array2) && !(models_array1 == models_array2);
+}
+
+std::ostream& operator<<(std::ostream& os, const ModelsArray& c)
+{
+    return os << "modelArray:" << c.typeID << ":" << c.num_of_models << "***";
 }
 #endif

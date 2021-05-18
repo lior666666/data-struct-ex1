@@ -18,9 +18,14 @@ public:
 
     friend bool operator<(const TypeTree& type_tree1, const TypeTree& type_tree2);
 
+    friend std::ostream& operator<<(std::ostream& os, const TypeTree& c);
+
     ~TypeTree()
     {
-        (*this->models_tree).clearTree();
+        if (this->models_tree != NULL)
+        {
+            (*this->models_tree).clearTree();
+        }
     };
 
     TypeTree(int typeID, int number_of_models, AvlTree<Model>* models_tree) // if you want to make dummy, just put NULL into models_tree
@@ -83,5 +88,10 @@ bool operator<(const TypeTree& type_tree1, const TypeTree& type_tree2)
 bool operator>(const TypeTree& type_tree1, const TypeTree& type_tree2)
 {
     return !(type_tree1 < type_tree2) && !(type_tree1 == type_tree2);
+}
+
+std::ostream& operator<<(std::ostream& os, const TypeTree& c)
+{
+    return os << "typeTree:" << c.typeID << ":" << c.number_of_models << "***";
 }
 #endif

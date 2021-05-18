@@ -14,15 +14,11 @@ class AvlTree
         // internal function to free and delete all the tree nodes 
         void cleanTree(AvlTree<T>* node)
         {
-            printf("t");
-            if(node != NULL)
-            {
-                printf("*in_if*");
-                this->cleanTree(node->next);
-                this->cleanTree(node->left);
-                this->cleanTree(node->right);   
-                delete node; 
-            }
+            if(node == NULL)
+                return; 
+            this->cleanTree(node->left);
+            this->cleanTree(node->right);   
+            delete node; 
         }
         // internal function, gets the balance factor of the node. 
         int getBalanceFactor(AvlTree<T>* tree_node)
@@ -93,6 +89,8 @@ class AvlTree
         // internal function, making rotation right to balance the tree. 
         AvlTree<T>* findMostLeftNode(AvlTree<T>* tree_node)
         {
+            if(tree_node == NULL)
+                return NULL;
             if(tree_node->left == NULL)
                 return tree_node;
             return findMostLeftNode(tree_node->left);
@@ -230,7 +228,10 @@ class AvlTree
                 if(getBalanceFactor(tree_node)>1 && getBalanceFactor(tree_node->left)<0)
                 {
                     tree_node->left = tree_node->left->rotateLeft();
-                    tree_node->left->parent = tree_node;
+                    if (tree_node->left!=NULL)
+                    {
+                        tree_node->left->parent = tree_node;
+                    }
                     return tree_node->rotateRight();
                 }
                 //RR
@@ -242,7 +243,10 @@ class AvlTree
                 if(getBalanceFactor(tree_node)<-1 && getBalanceFactor(tree_node->right)>0)
                 {
                     tree_node->right = tree_node->right->rotateRight();
-                    tree_node->right->parent = tree_node;
+                    if (tree_node->right!=NULL)
+                    {
+                        tree_node->right->parent = tree_node;
+                    }
                     return tree_node->rotateLeft();
                 }
 
@@ -298,7 +302,7 @@ class AvlTree
 
     public:
 
-        AvlTree<T>()
+        AvlTree<T>(): data()
         {
             left = NULL;
             right = NULL;
@@ -315,7 +319,7 @@ class AvlTree
 
         ~AvlTree<T>()
         {  
-            this->cleanTree(this->next); 
+            this->cleanTree(this->next);   
         }
         // insert the data to the tree and keep it balanced. returns false if this data is already inside the tree and true if it's not and it put it now.
         bool insertElement(T data)
@@ -342,16 +346,14 @@ class AvlTree
         // remove a data from the tree and keep it balanced. 
         bool removeElement(T data)
         {
-            AvlTree<T>* node = findNode(data, this->next);
-            if (node == NULL)
-            {
-                return false;
-            }
-            printf("ronaldo");
-            this->next = removeNode(data, this->next); 
-            this->next->parent = NULL; 
+           AvlTree<T>* node = findNode(data, this->next);
+           if(node ==NULL)
+                return false; 
+           this->next = removeNode(data, this->next); 
+           if(this->next!=NULL)
+                this->next->parent = NULL;      
             this->min_node = findMinNode();
-            return true; 
+           return true; 
         }
         // prints all the data in the tree by order from the smallest key to the biggest one. 
         void printTree()
