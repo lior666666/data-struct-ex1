@@ -60,7 +60,7 @@ public:
         Model* array = new Model[num_of_models];
         for(int i = 0; i < num_of_models; i++)
         {
-            array[i] = Model(typeID, i);
+            array[i] = Model(typeID, i, 0);
         }
         this->best_seller_model = array[0]; // every typeID has at least one model
         this->array = array;

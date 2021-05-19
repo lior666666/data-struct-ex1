@@ -2,19 +2,19 @@
 
 void* Init()
 {
-    CarDealershipManager* DS = NULL;
 	try {
-        DS = new CarDealershipManager();
+        CarDealershipManager* DS = new CarDealershipManager();
+        return (void*)DS;
     }
     catch (std::bad_alloc& e) {
         return NULL;
     }
-    return (void*)DS;
 }
 
 void Quit(void** DS)
 {
-    delete DS;
+    delete *((CarDealershipManager**)DS);
+    *DS = NULL;
 }
 
 StatusType AddCarType(void *DS, int typeID, int numOfModels)

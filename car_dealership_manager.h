@@ -16,7 +16,21 @@ class CarDealershipManager
 public:
     CarDealershipManager() : max_model_sales(0) {};
 
-    ~CarDealershipManager() = default;
+    ~CarDealershipManager()
+    {
+        CleanZeroTree(zero_tree.getNext());
+    }
+
+    void CleanZeroTree(AvlTree<TypeTree>* node)
+    {
+        if (node != NULL)
+        {
+            CleanZeroTree(node->getLeft());
+            AvlTree<Model>* type_models_tree = node->getData().getModelsTree();
+            delete type_models_tree;
+            CleanZeroTree(node->getRight());
+        }
+    }
 
     StatusType AddCarType(int typeID, int numOfModels)
     {
@@ -26,7 +40,7 @@ public:
         {
             return FAILURE; //already exist typeID
         }
-        AvlTree<Model>* models_tree = new AvlTree<Model>(new_type.getModelsArray(), new_type.getNumOfModels()); // O(m)  special algoritm for building AVL tree. 
+        AvlTree<Model>* models_tree = new AvlTree<Model>(new_type.getModelsArray(), new_type.getNumOfModels()-1); // O(m)  special algoritm for building AVL tree. 
 
         TypeTree new_tree_node = TypeTree(typeID, numOfModels, models_tree);    
         zero_tree.insertElement(new_tree_node); // o(log n)
@@ -48,7 +62,8 @@ public:
         TypeTree* type_to_delete_in_zero_tree = this->zero_tree.getNodeData(dummy_tree); //o(log(n))
         if (type_to_delete_in_zero_tree != NULL)
         {
-            type_to_delete_in_zero_tree->getModelsTree().clearTree(); //o(m)
+            type_to_delete_in_zero_tree->getModelsTree()->clearTree(); //o(m)
+            delete type_to_delete_in_zero_tree->getModelsTree();
             this->zero_tree.removeElement(*type_to_delete_in_zero_tree); //o(log(n))
         }
         //****************
@@ -82,8 +97,10 @@ public:
            return FAILURE;
         }
         ModelsArray model_to_change = real_Node_id->getData(); // log n
+        int prev_score = model_to_change.getModelsArray()[modelID].getScore();
+        //std::cout <<  "sale modelID: " << modelID << ", prev_score:" << prev_score << std::endl;
         model_to_change.getModelsArray()[modelID].addSale(); // adding 1 sale + chanching total scores. 
-
+        
         Model updated_model = model_to_change.getModelsArray()[modelID]; // the new model after update of sales. 
         model_to_change.updateBestSellerModel(updated_model); // checks inside the function if it should update the min. 
         if(updated_model.getNumOfSales() > best_seller_model.getNumOfSales())
@@ -107,21 +124,22 @@ public:
 
         TypeTree dummy_type_tree_id = TypeTree(typeID, 0, NULL); 
         AvlTree<TypeTree>* real_Node_zero_tree_id = zero_tree.getNode(dummy_type_tree_id); // log n
-        Model dummy_model = Model(typeID, modelID);
+        
+        Model dummy_model = Model(typeID, modelID, prev_score);
         bool zero_is_empty = true;
         // means there are models with 0 scores under this ID.
         if(real_Node_zero_tree_id != NULL)  
         { 
-            AvlTree<Model> zero_models_tree = real_Node_zero_tree_id->getData().getModelsTree(); 
-            //zero_models_tree.printTree();
-            AvlTree<Model>* real_Model_Node = zero_models_tree.getNode(dummy_model); // log m
+            printf("000000");
+            AvlTree<Model>* zero_models_tree = real_Node_zero_tree_id->getData().getModelsTree(); 
+            AvlTree<Model>* real_Model_Node = zero_models_tree->getNode(dummy_model); // log m
             if(real_Model_Node != NULL) // if the update model in the type tree
             {
-                //printf("jjj");
+                printf("1111111");
                 real_Node_zero_tree_id->getData().removeModel(dummy_model); // log m
-
-                if(zero_models_tree.isEmpty()) // in case there are no 0 score models under this ID. 
+                if(zero_models_tree->isEmpty()) // in case there are no more 0 score models under this ID. 
                 {
+                    printf("2222222");
                     zero_tree.removeElement(dummy_type_tree_id);
                 }
                 models_tree.insertElement(updated_model); // log M 
@@ -131,6 +149,7 @@ public:
         // in case zero trees don't have this model.
         if(zero_is_empty == true || real_Node_zero_tree_id == NULL) 
         {
+            printf("3333333");
             if(models_tree.removeElement(dummy_model) == false)//  log M 
             {
                 return FAILURE;
@@ -139,6 +158,7 @@ public:
             {
                 if(real_Node_zero_tree_id == NULL) // IN CASE THERE Is NO NODE WITH 0 MODELS UNDER THIS ID. 
                 {
+                    printf("4444444");
                     AvlTree<Model>* zero_models_tree =  new AvlTree<Model>; 
                     zero_models_tree->insertElement(updated_model);
                     TypeTree new_type_tree_node = TypeTree(typeID, 1, zero_models_tree); 
@@ -146,11 +166,13 @@ public:
                 }
                 else // there are models under this ID with zero.
                 {
+                    printf("5555555");
                     real_Node_zero_tree_id->getData().insertModel(updated_model); // log m
                 }
             }
             else // we need to insert it back to models tree
             {
+                printf("6666666");
                 models_tree.insertElement(updated_model);
             }
         }
@@ -341,12 +363,11 @@ public:
 
     int goThroughZeroTree(AvlTree<TypeTree>* starting_node, int numOfModels, int* types, int* models, int i)
     {
-
         int counter = i;
         while(starting_node != NULL && counter<numOfModels)
         {
            // do the actual function.
-            counter = counter + goThroughModelsTree(starting_node->getData().getModelsTree().getMinNode(), numOfModels, types, models, i);
+            counter = counter + goThroughModelsTree(starting_node->getData().getModelsTree()->getMinNode(), numOfModels, types, models, i);
             if(counter>numOfModels)
                 break; 
             counter =  counter + goThroughZeroTreeInOrder(starting_node->getRight(),  numOfModels, types, models, counter);
@@ -371,7 +392,7 @@ public:
         counter =  goThroughZeroTreeInOrder(starting_node->getLeft(), numOfModels, types, models, counter); 
 
         // do the actual function.
-        counter = goThroughModelsTree(starting_node->getData().getModelsTree().getMinNode(), numOfModels, types, models, i);
+        counter = goThroughModelsTree(starting_node->getData().getModelsTree()->getMinNode(), numOfModels, types, models, i);
 
         counter = goThroughZeroTreeInOrder(starting_node->getRight(), numOfModels, types, models, counter); 
         return counter + 1; 

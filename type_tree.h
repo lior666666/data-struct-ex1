@@ -12,21 +12,13 @@ class TypeTree
 public:
     TypeTree() = default;
 
-    TypeTree(const TypeTree& type_tree) = default;
-
     friend bool operator==(const TypeTree& type_tree1, const TypeTree& type_tree2);
 
     friend bool operator<(const TypeTree& type_tree1, const TypeTree& type_tree2);
 
     friend std::ostream& operator<<(std::ostream& os, const TypeTree& c);
 
-    ~TypeTree()
-    {
-        if (this->models_tree != NULL)
-        {
-            (*this->models_tree).clearTree();
-        }
-    };
+    ~TypeTree() = default;
 
     TypeTree(int typeID, int number_of_models, AvlTree<Model>* models_tree) // if you want to make dummy, just put NULL into models_tree
     : typeID(typeID), number_of_models(number_of_models)
@@ -59,9 +51,9 @@ public:
         return is_remove;
     }
 
-    AvlTree<Model> getModelsTree()
+    AvlTree<Model>* getModelsTree()
     {
-        return *(this->models_tree);
+        return this->models_tree;
     }
 
     AvlTree<Model>* getLowestModel()

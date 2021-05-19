@@ -292,8 +292,12 @@ class AvlTree
         {
             if(tree_node ==NULL)
                 return NULL; // change to NULL; 
-            else if(data == tree_node->data)
+            std::cout << tree_node->data <<  std::endl;   
+            std::cout << data << std::endl;   
+            if(data == tree_node->data)
+            {  
                 return tree_node;
+            }
             else if (tree_node->data < data)   
                 return findNode(data, tree_node->right);
             else  
@@ -346,9 +350,13 @@ class AvlTree
         // remove a data from the tree and keep it balanced. 
         bool removeElement(T data)
         {
+            //std::cout <<  data << std::endl;   
            AvlTree<T>* node = findNode(data, this->next);
            if(node ==NULL)
+           {
+               //printf("6666666666666666666666666666666666666");
                 return false; 
+           }
            this->next = removeNode(data, this->next); 
            if(this->next!=NULL)
                 this->next->parent = NULL;      
@@ -378,6 +386,10 @@ class AvlTree
         AvlTree<T>* getParent()
         {
             return this->parent;
+        }
+        AvlTree<T>* getNext()
+        {
+            return this->next;
         }
         // gets the height of the tree. (maybee we won't need that one.)    
         int getHeight()
