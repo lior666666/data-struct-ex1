@@ -292,12 +292,8 @@ class AvlTree
         {
             if(tree_node ==NULL)
                 return NULL; // change to NULL; 
-            std::cout << tree_node->data <<  std::endl;   
-            std::cout << data << std::endl;   
-            if(data == tree_node->data)
-            {  
+            else if(data == tree_node->data)
                 return tree_node;
-            }
             else if (tree_node->data < data)   
                 return findNode(data, tree_node->right);
             else  
@@ -312,12 +308,18 @@ class AvlTree
             right = NULL;
             parent = NULL; 
             next = NULL;
+            min_node = NULL;
             node_height = 0; 
         }
 
         AvlTree<T>(T* array, int size_of_tree) // building AVL tree from a sorted array, O(n) compleccity. 
         {
-           this->next = buildTree(array, 0, size_of_tree );
+            left = NULL;
+            right = NULL;
+            parent = NULL; 
+            this->next = buildTree(array, 0, size_of_tree );
+            this->min_node = findMinNode(); 
+            node_height = 0;
         }
 
 
@@ -350,13 +352,9 @@ class AvlTree
         // remove a data from the tree and keep it balanced. 
         bool removeElement(T data)
         {
-            //std::cout <<  data << std::endl;   
            AvlTree<T>* node = findNode(data, this->next);
            if(node ==NULL)
-           {
-               //printf("6666666666666666666666666666666666666");
                 return false; 
-           }
            this->next = removeNode(data, this->next); 
            if(this->next!=NULL)
                 this->next->parent = NULL;      
@@ -375,6 +373,14 @@ class AvlTree
                   std::cout <<  " " << std::endl;   
                 }   
             }
+        void printNode()
+        {
+            std::cout << this->data << std::endl; 
+        } 
+        AvlTree<T>* getNext()
+        {
+            return this->next;
+        }  
         AvlTree<T>* getLeft()
         {
             return this->left;
@@ -386,10 +392,6 @@ class AvlTree
         AvlTree<T>* getParent()
         {
             return this->parent;
-        }
-        AvlTree<T>* getNext()
-        {
-            return this->next;
         }
         // gets the height of the tree. (maybee we won't need that one.)    
         int getHeight()
@@ -412,6 +414,10 @@ class AvlTree
         T getData()
         {
             return (this->data);      
+        } 
+        T* getDataPointer()
+        {
+            return &(this->data);      
         } 
         // insert data to a left son of a specific node in the tree. (usfull when we are building a tree from scratch node by node.)
         void insertLeftSon(T data, AvlTree<T>* tree_node)

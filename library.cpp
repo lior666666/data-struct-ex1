@@ -112,4 +112,3 @@ StatusType GetWorstModels(void *DS, int numOfModels, int *types, int *models)
     }
     return status;
 }
-

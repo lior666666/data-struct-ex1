@@ -10,7 +10,7 @@ class Model
     int num_of_sales;
     int num_of_complaints;
 public:
-    Model() = default;
+    Model(): typeID(0), modelID(0), score(0), num_of_sales(0), num_of_complaints(0) {}
     ~Model() = default;
     Model(const Model& model) = default;
     friend bool operator==(const Model& model1, const Model& model2);

@@ -5,6 +5,7 @@
 #include "library.h"
 #include "type_tree.h"
 #include <iostream>
+#include <stdio.h>
 
 class CarDealershipManager
 {
@@ -86,23 +87,25 @@ public:
     StatusType SellCar(int typeID, int modelID)
     {
         ModelsArray dummy_id = ModelsArray(typeID);
-        AvlTree<ModelsArray>* real_Node_id = types_tree.getNode(dummy_id); // log n
-        if (real_Node_id == NULL)
+        //AvlTree<ModelsArray>* real_Node_id = types_tree.getNode(dummy_id); // log n
+        ModelsArray* model_to_change = types_tree.getNodeData(dummy_id);  // log n
+        if (model_to_change == NULL)
         {
             return FAILURE;
         }
-        int models_array_length = real_Node_id->getData().getNumOfModels();
+        int models_array_length = model_to_change->getNumOfModels();
         if (models_array_length <= modelID)
         {
            return FAILURE;
         }
-        ModelsArray model_to_change = real_Node_id->getData(); // log n
-        int prev_score = model_to_change.getModelsArray()[modelID].getScore();
-        //std::cout <<  "sale modelID: " << modelID << ", prev_score:" << prev_score << std::endl;
-        model_to_change.getModelsArray()[modelID].addSale(); // adding 1 sale + chanching total scores. 
+        //ModelsArray model_to_change = real_Node_id->getData(); // log n
+        int prev_score = model_to_change->getModelsArray()[modelID].getScore();
+    //   std::cout <<  "sale modelID: " << modelID << ", prev_score:" << prev_score << std::endl;
+        model_to_change->getModelsArray()[modelID].addSale(); // adding 1 sale + chanching total scores. 
         
-        Model updated_model = model_to_change.getModelsArray()[modelID]; // the new model after update of sales. 
-        model_to_change.updateBestSellerModel(updated_model); // checks inside the function if it should update the min. 
+        Model updated_model = model_to_change->getModelsArray()[modelID]; // the new model after update of sales. 
+      // std::cout <<  "sale modelID: " << updated_model << ", prev_score:" << prev_score << std::endl;
+        model_to_change->updateBestSellerModel(updated_model); // checks inside the function if it should update the min. 
         if(updated_model.getNumOfSales() > best_seller_model.getNumOfSales())
         {
             this->best_seller_model = updated_model; 
@@ -130,16 +133,16 @@ public:
         // means there are models with 0 scores under this ID.
         if(real_Node_zero_tree_id != NULL)  
         { 
-            printf("000000");
+            //printf("000000");
             AvlTree<Model>* zero_models_tree = real_Node_zero_tree_id->getData().getModelsTree(); 
             AvlTree<Model>* real_Model_Node = zero_models_tree->getNode(dummy_model); // log m
             if(real_Model_Node != NULL) // if the update model in the type tree
             {
-                printf("1111111");
+               // printf("1111111");
                 real_Node_zero_tree_id->getData().removeModel(dummy_model); // log m
                 if(zero_models_tree->isEmpty()) // in case there are no more 0 score models under this ID. 
                 {
-                    printf("2222222");
+                 //   printf("2222222");
                     zero_tree.removeElement(dummy_type_tree_id);
                 }
                 models_tree.insertElement(updated_model); // log M 
@@ -149,7 +152,7 @@ public:
         // in case zero trees don't have this model.
         if(zero_is_empty == true || real_Node_zero_tree_id == NULL) 
         {
-            printf("3333333");
+        //    std::cout <<  "sale modelID: " << dummy_model << std::endl;
             if(models_tree.removeElement(dummy_model) == false)//  log M 
             {
                 return FAILURE;
@@ -158,7 +161,7 @@ public:
             {
                 if(real_Node_zero_tree_id == NULL) // IN CASE THERE Is NO NODE WITH 0 MODELS UNDER THIS ID. 
                 {
-                    printf("4444444");
+                //    printf("4444444");
                     AvlTree<Model>* zero_models_tree =  new AvlTree<Model>; 
                     zero_models_tree->insertElement(updated_model);
                     TypeTree new_type_tree_node = TypeTree(typeID, 1, zero_models_tree); 
@@ -166,16 +169,17 @@ public:
                 }
                 else // there are models under this ID with zero.
                 {
-                    printf("5555555");
+                  //  printf("5555555");
                     real_Node_zero_tree_id->getData().insertModel(updated_model); // log m
                 }
             }
             else // we need to insert it back to models tree
             {
-                printf("6666666");
+             //   printf("6666666");
                 models_tree.insertElement(updated_model);
             }
         }
+
         return SUCCESS; 
     }
 
@@ -185,49 +189,55 @@ public:
         ModelsArray* type_to_complain = this->types_tree.getNodeData(dummy_models_array); //o(log(n))
         if (type_to_complain == NULL)
         {
+       //    printf("1");
             return FAILURE;
         }
         int models_array_length = type_to_complain->getNumOfModels();
         if (models_array_length <= modelID)
         {
+      //      printf("2");
             return FAILURE;
         }
         Model* models_array = type_to_complain->getModelsArray();
-        Model model_to_complain = models_array[modelID];
-        int prev_score = model_to_complain.getScore();
-        model_to_complain.addComplain(months); //o(1)
-        int new_score = model_to_complain.getScore();
+        Model old_model_to_complain = models_array[modelID];
+        Model new_model_to_complain = old_model_to_complain;
+        int prev_score = old_model_to_complain.getScore();
+        new_model_to_complain.addComplain(months); //o(1)
+        int new_score = new_model_to_complain.getScore();
         if (prev_score != 0) //the model in models_tree
         {
             if (new_score != 0) //after the complain - the score is not 0 so the model stay in models_tree
             {
-                if(models_tree.removeElement(model_to_complain) == false)//  log M 
+                //std::cout <<  "sale modelID: " << model_to_complain << std::endl;
+                if(models_tree.removeElement(old_model_to_complain) == false)//  log M 
                 {
+             //       printf("3");
                     return FAILURE;
                 }
-                Model* update_model = this->models_tree.getNodeData(model_to_complain)->addComplain(months); //o(log(M))
-                models_tree.insertElement(*update_model);
+                //Model* update_model = this->models_tree.getNodeData(model_to_complain)->addComplain(months); //o(log(M))
+                models_tree.insertElement(new_model_to_complain);
             }
             else //after the complain - the score is 0 so the model goes to zero_tree
             {
                 //remove from models_tree
-                this->models_tree.removeElement(model_to_complain); //o(log(M))
+                this->models_tree.removeElement(old_model_to_complain); //o(log(M))
 
                 //add to zero_tree
                 TypeTree dummy_tree = TypeTree(typeID, 0, NULL); //o(1)
                 TypeTree* type_in_zero_tree = this->zero_tree.getNodeData(dummy_tree); //o(log(n))
-                Model model_to_complain_in_zero_tree = Model(model_to_complain); //o(1)
-                model_to_complain_in_zero_tree.addComplain(months); //o(1)
+                // Model model_to_complain_in_zero_tree = Model(model_to_complain); //o(1)
+                // model_to_complain_in_zero_tree.addComplain(months); //o(1)
                 if (type_in_zero_tree == NULL) // type id is not in the zero_tree --> this is the first zero score for that type
                 {
                     AvlTree<Model>* zero_models_tree =  new AvlTree<Model>; 
-                    zero_models_tree->insertElement(model_to_complain_in_zero_tree);
+                    zero_models_tree->insertElement(old_model_to_complain);
                     TypeTree type_in_zero_tree = TypeTree(typeID, 1, zero_models_tree); 
                     this->zero_tree.insertElement(type_in_zero_tree); 
                 }
                 else
                 {
-                    type_in_zero_tree->insertModel(model_to_complain_in_zero_tree); //o(log(n))
+                    //type_in_zero_tree->insertModel(model_to_complain_in_zero_tree); //o(log(n))
+                    type_in_zero_tree->insertModel(new_model_to_complain); //o(log(n))
                 }
             }
         }
@@ -235,17 +245,18 @@ public:
         {
             TypeTree dummy_tree = TypeTree(typeID, 0, NULL); //o(1)
             AvlTree<TypeTree>* type_in_zero_tree = this->zero_tree.getNode(dummy_tree); // log n
-            if (!type_in_zero_tree->getData().removeModel(model_to_complain)); //o(log(M))
+            if (!type_in_zero_tree->getDataPointer()->removeModel(old_model_to_complain)); //o(log(M))
             {
+            //    printf("4");
                 return FAILURE; //for debugging. It should not happen!!
             }
             if (type_in_zero_tree->isEmpty())
             {
                 this->zero_tree.removeElement(type_in_zero_tree->getData()); //o(log(n)
             }
-            Model model_to_complain_in_models_tree = Model(model_to_complain); //o(1)
-            model_to_complain_in_models_tree.addComplain(months); //o(1)
-            this->models_tree.insertElement(model_to_complain_in_models_tree); //o(log(M))
+            // Model model_to_complain_in_models_tree = Model(model_to_complain); //o(1)
+            // model_to_complain_in_models_tree.addComplain(months); //o(1)
+            this->models_tree.insertElement(new_model_to_complain); //o(log(M))
         }
         return SUCCESS;
     };
@@ -314,25 +325,28 @@ public:
     int goThroughModelsTreeInOrder(AvlTree<Model>* starting_node, int numOfModels, int* types, int* models, int i)
     {
         int counter = i; 
+        //printf("222222222222222222");
         if(starting_node == NULL)
         {
-            return i; 
+            return 0; 
         }
         // in case we went through number of models that was asked. 
         if(i == numOfModels)
         {
-            return i; // to think about that
+            return 0; // to think about that
         }
-
-        counter =  goThroughModelsTreeInOrder(starting_node->getLeft(), numOfModels, types, models, counter); 
+        //printf("333333333333333333333333");
+        //starting_node->printNode();
+        counter =  counter + goThroughModelsTreeInOrder(starting_node->getLeft(), numOfModels, types, models, counter); 
         // do the actual function.
         types[i] = starting_node->getData().getTypeID();
         models[i] = starting_node->getData().getModelID();
+        //counter++;
         // check if we need to switch to zero tree. 
-        counter = goThroughModelsTreeInOrder(starting_node->getRight(), numOfModels, types, models, counter); 
+        counter = counter + goThroughModelsTreeInOrder(starting_node->getRight(), numOfModels, types, models, counter); 
         if(checkForZeroParent(starting_node) == true)
         {
-            counter = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+           // counter = counter + goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
         }  
         return counter + 1; 
     }
@@ -344,17 +358,21 @@ public:
         while(starting_node != NULL && counter<numOfModels)
         {
            // do the actual function.
-            types[i] = starting_node->getData().getTypeID();
-            models[i] = starting_node->getData().getModelID();
+           //printf("11111111111111111111");
+           // starting_node->printNode();
+            types[counter] = starting_node->getData().getTypeID();
+            models[counter] = starting_node->getData().getModelID();
             counter++;
             // check if we need to switch to zero tree.   
             if(counter>numOfModels)
                 break; 
-            counter =  counter + goThroughModelsTreeInOrder(starting_node->getRight(),  numOfModels, types, models, counter);
-            // check if we need to switch to zero tree. 
+            int new_counter = goThroughModelsTreeInOrder(starting_node->getRight(),  numOfModels, types, models, counter);   
+            if (new_counter != 0)
+                counter =  new_counter; 
+            //check if we need to switch to zero tree. 
             if(checkForZeroParent(starting_node) == true)
             {
-                counter =  counter + goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+                // counter =  counter + goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
             } 
             starting_node = starting_node->getParent();    
         }
