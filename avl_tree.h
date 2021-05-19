@@ -313,7 +313,11 @@ class AvlTree
 
         AvlTree<T>(T* array, int size_of_tree) // building AVL tree from a sorted array, O(n) compleccity. 
         {
-           this->next = buildTree(array, 0, size_of_tree );
+            left = NULL;
+            right = NULL;
+            parent = NULL; 
+            this->next = buildTree(array, 0, size_of_tree );
+            node_height = 0;
         }
 
 
@@ -367,6 +371,14 @@ class AvlTree
                   std::cout <<  " " << std::endl;   
                 }   
             }
+        void printNode()
+        {
+            std::cout << this->data << std::endl; 
+        } 
+        AvlTree<T>* getNext()
+        {
+            return this->next;
+        }  
         AvlTree<T>* getLeft()
         {
             return this->left;
@@ -400,6 +412,10 @@ class AvlTree
         T getData()
         {
             return (this->data);      
+        } 
+        T* getDataPointer()
+        {
+            return &(this->data);      
         } 
         // insert data to a left son of a specific node in the tree. (usfull when we are building a tree from scratch node by node.)
         void insertLeftSon(T data, AvlTree<T>* tree_node)
