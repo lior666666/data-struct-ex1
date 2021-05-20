@@ -308,6 +308,7 @@ class AvlTree
             right = NULL;
             parent = NULL; 
             next = NULL;
+            min_node = NULL;
             node_height = 0; 
         }
 
@@ -317,6 +318,7 @@ class AvlTree
             right = NULL;
             parent = NULL; 
             this->next = buildTree(array, 0, size_of_tree );
+            this->min_node = findMinNode(); 
             node_height = 0;
         }
 

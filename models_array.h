@@ -10,7 +10,7 @@ class ModelsArray
     Model best_seller_model;
     Model* array;
 public:
-    ModelsArray() = default;
+    ModelsArray(): typeID(0), num_of_models(0), best_seller_model(), array(NULL) {}
 
     ModelsArray(const ModelsArray& models_array1) :
     typeID(models_array1.typeID), num_of_models(models_array1.num_of_models), best_seller_model(models_array1.best_seller_model)
