@@ -53,9 +53,16 @@ public:
 
 bool operator==(const Model& model1, const Model& model2)
 {
-    return model1.score == model2.score &&
-            model1.typeID == model2.typeID &&
-            model1.modelID == model2.modelID;
+    if(model1.score == model2.score && model1.typeID == model2.typeID) 
+        {
+            if(model1.modelID == model2.modelID)
+                return true;
+        }
+    return false;    
+
+    // return model1.score == model2.score &&
+    //         model1.typeID == model2.typeID &&
+    //         model1.modelID == model2.modelID;
 }
 
 bool operator<(const Model& model1, const Model& model2)

@@ -143,6 +143,7 @@ public:
                 if(zero_models_tree->isEmpty()) // in case there are no more 0 score models under this ID. 
                 {
                  //   printf("2222222");
+                    delete zero_models_tree;
                     zero_tree.removeElement(dummy_type_tree_id);
                 }
                 models_tree.insertElement(updated_model); // log M 
@@ -189,29 +190,31 @@ public:
         ModelsArray* type_to_complain = this->types_tree.getNodeData(dummy_models_array); //o(log(n))
         if (type_to_complain == NULL)
         {
-           printf("1");
+      //     printf("1");
             return FAILURE;
         }
         int models_array_length = type_to_complain->getNumOfModels();
         if (models_array_length <= modelID)
         {
-          printf("2");
+      //    printf("2");
             return FAILURE;
         }
-        Model* models_array = type_to_complain->getModelsArray();
-        Model old_model_to_complain = models_array[modelID];
-        Model new_model_to_complain = old_model_to_complain;
+        //Model* models_array = type_to_complain->getModelsArray();
+        Model old_model_to_complain = type_to_complain->getModelsArray()[modelID];
+        type_to_complain->getModelsArray()[modelID].addComplain(months);
+        Model new_model_to_complain = type_to_complain->getModelsArray()[modelID];
         int prev_score = old_model_to_complain.getScore();
-        new_model_to_complain.addComplain(months); //o(1)
         int new_score = new_model_to_complain.getScore();
         if (prev_score != 0) //the model in models_tree
         {
             if (new_score != 0) //after the complain - the score is not 0 so the model stay in models_tree
             {
-                //std::cout <<  "sale modelID: " << model_to_complain << std::endl;
+                // std::cout <<  "sale modelID: " << old_model_to_complain << std::endl;
+                //  std::cout <<  "sale modelID: " << new_model_to_complain << std::endl;
+                // models_tree.printTree();
                 if(models_tree.removeElement(old_model_to_complain) == false)//  log M 
                 {
-                    printf("3");
+           //         printf("3");
                     return FAILURE;
                 }
                 //Model* update_model = this->models_tree.getNodeData(model_to_complain)->addComplain(months); //o(log(M))
@@ -230,7 +233,7 @@ public:
                 if (type_in_zero_tree == NULL) // type id is not in the zero_tree --> this is the first zero score for that type
                 {
                     AvlTree<Model>* zero_models_tree =  new AvlTree<Model>; 
-                    zero_models_tree->insertElement(old_model_to_complain);
+                    zero_models_tree->insertElement(new_model_to_complain);
                     TypeTree type_in_zero_tree = TypeTree(typeID, 1, zero_models_tree); 
                     this->zero_tree.insertElement(type_in_zero_tree); 
                 }
@@ -245,14 +248,19 @@ public:
         {
             TypeTree dummy_tree = TypeTree(typeID, 0, NULL); //o(1)
             AvlTree<TypeTree>* type_in_zero_tree = this->zero_tree.getNode(dummy_tree); // log n
-            if (!type_in_zero_tree->getDataPointer()->removeModel(old_model_to_complain)); //o(log(M))
+            // std::cout <<  "sale modelID: " << old_model_to_complain << std::endl;
+            // type_in_zero_tree->getDataPointer()->getModelsTree()->printTree();
+            // std::cout <<  "sale modelID: " << new_model_to_complain << std::endl;
+            if (type_in_zero_tree->getDataPointer()->getModelsTree()->removeElement(old_model_to_complain) == false) //o(log(M))
             {
-                 printf("4");
+               // printf("4");
                 return FAILURE; //for debugging. It should not happen!!
             }
             if (type_in_zero_tree->isEmpty())
             {
-                this->zero_tree.removeElement(type_in_zero_tree->getData()); //o(log(n)
+                AvlTree<Model>*  temp = type_in_zero_tree->getData().getModelsTree();
+                delete temp ;
+                this->zero_tree.removeElement(dummy_tree); //o(log(n)
             }
             // Model model_to_complain_in_models_tree = Model(model_to_complain); //o(1)
             // model_to_complain_in_models_tree.addComplain(months); //o(1)
@@ -379,7 +387,7 @@ public:
     {
         int counter = i;
         if(counter == 0)
-            printf("howwwwwwwwww");
+           // printf("howwwwwwwwww");
          if(counter == 2)
             printf("222222222222222222222222");    
         while(starting_node != NULL && counter<numOfModels)
