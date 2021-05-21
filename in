@@ -1,20 +1,27 @@
 Init
-AddCarType 10 5
-AddCarType 21 5
-SellCar 10 1
-SellCar 10 2
-SellCar 10 1
-SellCar 10 0
-SellCar 10 0
-SellCar 10 3
-SellCar 10 4
-SellCar 21 1
-SellCar 21 3
-MakeComplaint 10 2 5
-MakeComplaint 10 2 5
-MakeComplaint 10 2 5
-MakeComplaint 10 1 5
-MakeComplaint 10 1 5
-GetBestSellerModelByType 10
+AddCarType 1 5
+SellCar 1 2
+SellCar 1 8
+SellCar 1 3
+SellCar 1 4
+SellCar 1 4
+SellCar 1 4
+SellCar 1 0
+MakeComplaint 1 0 10
+MakeComplaint 1 4 20
+AddCarType 2 3
+AddCarType 3 5
+SellCar 3 2
+SellCar 3 2
+SellCar 3 2
+SellCar 2 1
+MakeComplaint 1 0 12
+MakeComplaint 2 1 4
+SellCar 3 2
+SellCar 3 2
+SellCar 3 2
+GetBestSellerModelByType 0
+RemoveCarType 3
 GetWorstModels 7
+GetBestSellerModelByType 0
 Quit
