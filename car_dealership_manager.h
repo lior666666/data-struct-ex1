@@ -13,9 +13,10 @@ class CarDealershipManager
     AvlTree<Model> models_tree;
     AvlTree<TypeTree> zero_tree;
     int max_model_sales;
+    bool zero_tree_printed; 
     Model best_seller_model;
 public:
-    CarDealershipManager() : max_model_sales(0) {};
+    CarDealershipManager() : max_model_sales(0) , zero_tree_printed(false) {};
 
     ~CarDealershipManager()
     {
@@ -298,12 +299,14 @@ public:
 
     StatusType GetWorstModels(int numOfModels, int* types, int* models)
     {
+        this->zero_tree_printed = false; 
          models_tree.printTree();
          zero_tree.printTree();
         int counter_zero = 0; 
         if(models_tree.isEmpty())
         {
             counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, 0);
+            this->zero_tree_printed = true; 
         }
         else
         {
@@ -311,6 +314,7 @@ public:
             if(models_tree.getMinNode()->getData().getScore()> 0 )
             {
                 counter_zero = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, 0);
+                this->zero_tree_printed = true; 
             }
             counter_zero = goThroughModelsTree(models_tree.getMinNode(), numOfModels, types, models, counter_zero);
         }
@@ -321,7 +325,7 @@ public:
 
     bool checkForZeroParent(AvlTree<Model>* node)
     {
-         if(node->getParent() !=NULL)
+         if(node->getParent() !=NULL && this->zero_tree_printed == false)
             {
                 if(node->getData().getScore() < 0 && node->getParent()->getData().getScore() > 0)
                 {
@@ -333,7 +337,7 @@ public:
     }
     bool checkForZeroSubTreeRoot(AvlTree<Model>* node, Model sub_tree_root)
     {
-         if(node->getLeft()==NULL)   
+         if(node->getLeft()==NULL && this->zero_tree_printed == false)   
          {
              if(node->getData().getScore() > 0 && sub_tree_root.getScore()< 0)
                 {
@@ -377,8 +381,11 @@ public:
         }
         if(checkForZeroSubTreeRoot(starting_node, sub_tree_root))
         {
+            //printf("222222222222222222222222222222222222222222");
            counter = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter); 
+           this->zero_tree_printed = true; 
         }
+        //printf("44444444444444444444444");
         starting_node->printNode();
         types[counter+i] = starting_node->getData().getTypeID();
         models[counter+i] = starting_node->getData().getModelID();
@@ -391,7 +398,9 @@ public:
         counter =  goThroughModelsTreeInOrder(starting_node->getRight(), numOfModels, types, models, i, counter, starting_node->getData()); 
         if(checkForZeroParent(starting_node) == true)
         {
+            //printf("33333333333333333333333333333333");
             counter = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+            this->zero_tree_printed = true; 
         }  
         return counter; 
     }
@@ -400,10 +409,10 @@ public:
     int goThroughModelsTree(AvlTree<Model>* starting_node, int numOfModels, int* types, int* models, int i)
     {
         int counter = i;
-        if(counter == 0)
-           // printf("howwwwwwwwww");
-         if(counter == 2)
-            printf("222222222222222222222222");    
+        // if(counter == 0)
+        //    // printf("howwwwwwwwww");
+        //  if(counter == 2)
+        //     printf("222222222222222222222222");    
         while(starting_node != NULL && counter<numOfModels)
         {
            // do the actual function.
@@ -424,7 +433,9 @@ public:
                 break; 
             if(checkForZeroParent(starting_node) == true)
             {
-                 counter = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+                //printf("555555555555555555555555");    
+                counter = goThroughZeroTree(zero_tree.getMinNode(),  numOfModels, types, models, counter);
+                 this->zero_tree_printed = true; 
             } 
             starting_node = starting_node->getParent();    
         }
