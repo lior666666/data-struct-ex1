@@ -9,7 +9,7 @@ class AvlTree
         AvlTree<T>* left;
         AvlTree<T>* next;
         AvlTree<T>* parent;
-         AvlTree<T>* min_node;
+        AvlTree<T>* min_node;
         int node_height; 
         // internal function to free and delete all the tree nodes 
         void cleanTree(AvlTree<T>* node)
@@ -86,7 +86,7 @@ class AvlTree
             right_to_top_pointer-> updateHeight();
             return right_to_top_pointer;
         }
-        // internal function, making rotation right to balance the tree. 
+
         AvlTree<T>* findMostLeftNode(AvlTree<T>* tree_node)
         {
             if(tree_node == NULL)
@@ -95,6 +95,16 @@ class AvlTree
                 return tree_node;
             return findMostLeftNode(tree_node->left);
         }
+
+        AvlTree<T>* findMostRightNode(AvlTree<T>* tree_node)
+        {
+            if(tree_node == NULL)
+                return NULL;
+            if(tree_node->right == NULL)
+                return tree_node;
+            return findMostRightNode(tree_node->right);
+        }
+
         // internal function, creating and allocating a new node with data. 
         AvlTree<T>* createNewTreeNode(T data)
         {
@@ -302,26 +312,14 @@ class AvlTree
 
     public:
 
-        AvlTree<T>(): data()
-        {
-            left = NULL;
-            right = NULL;
-            parent = NULL; 
-            next = NULL;
-            min_node = NULL;
-            node_height = 0; 
-        }
+        AvlTree<T>(): data(), right(), left(), next(), parent(), min_node(), node_height(0) {}
 
-        AvlTree<T>(T* array, int size_of_tree) // building AVL tree from a sorted array, O(n) compleccity. 
+        AvlTree<T>(T* array, int size_of_tree)
+        : data(), right(), left(), next(), parent(), min_node(), node_height(0) // building AVL tree from a sorted array, O(n) compleccity. 
         {
-            left = NULL;
-            right = NULL;
-            parent = NULL; 
             this->next = buildTree(array, 0, size_of_tree );
             this->min_node = findMinNode(); 
-            node_height = 0;
         }
-
 
         ~AvlTree<T>()
         {  
@@ -352,14 +350,16 @@ class AvlTree
         // remove a data from the tree and keep it balanced. 
         bool removeElement(T data)
         {
-           AvlTree<T>* node = findNode(data, this->next);
-           if(node ==NULL)
+            AvlTree<T>* node = findNode(data, this->next);
+            if(node ==NULL)
+            {
                 return false; 
-           this->next = removeNode(data, this->next); 
-           if(this->next!=NULL)
+            }
+            this->next = removeNode(data, this->next); 
+            if(this->next!=NULL)
                 this->next->parent = NULL;      
             this->min_node = findMinNode();
-           return true; 
+            return true; 
         }
         // prints all the data in the tree by order from the smallest key to the biggest one. 
         void printTree()
@@ -443,6 +443,11 @@ class AvlTree
         AvlTree<T>* findMinNode() // log(n)
         {
             return findMostLeftNode(this->next);
+        }
+
+        AvlTree<T>* findMaxNode() // log(n)
+        {
+            return findMostRightNode(this->next);
         }
 
         AvlTree<T>* getMinNode() // log(n)

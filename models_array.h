@@ -10,10 +10,10 @@ class ModelsArray
     Model best_seller_model;
     Model* array;
 public:
-    ModelsArray(): typeID(0), num_of_models(0), best_seller_model(), array(NULL) {}
+    ModelsArray(): typeID(0), num_of_models(0), best_seller_model(), array() {}
 
     ModelsArray(const ModelsArray& models_array1) :
-    typeID(models_array1.typeID), num_of_models(models_array1.num_of_models), best_seller_model(models_array1.best_seller_model)
+    typeID(models_array1.typeID), num_of_models(models_array1.num_of_models), best_seller_model(models_array1.best_seller_model), array()
     {
         Model* array = new Model[num_of_models];
         for(int i = 0; i < num_of_models; i++)
@@ -49,13 +49,10 @@ public:
         }
     }
 
-    ModelsArray(int typeID) : typeID(typeID), num_of_models(0)
-     {
-         array = NULL; 
-     } //dummy
+    ModelsArray(int typeID) : typeID(typeID), num_of_models(0), best_seller_model(), array() {} //dummy
 
     //check arg before calling the constructor!!!
-    ModelsArray(int typeID, int num_of_models) : typeID(typeID), num_of_models(num_of_models)
+    ModelsArray(int typeID, int num_of_models) : typeID(typeID), num_of_models(num_of_models), best_seller_model(), array()
     {
         Model* array = new Model[num_of_models];
         for(int i = 0; i < num_of_models; i++)
