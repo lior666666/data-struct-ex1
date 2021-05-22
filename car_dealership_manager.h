@@ -17,7 +17,7 @@ class CarDealershipManager
     bool zero_tree_printed; 
     int printed_counter; 
 public:
-    CarDealershipManager() : zero_tree_printed(false), printed_counter(0) {};
+    CarDealershipManager() : zero_tree_printed(false), printed_counter(0) {}
 
     ~CarDealershipManager()
     {
@@ -37,22 +37,18 @@ public:
 
     StatusType AddCarType(int typeID, int numOfModels)
     {
-        // !!!remember to check parameter in library.cpp!!!!
         ModelsArray new_type = ModelsArray(typeID, numOfModels); // maybee a "new" is needed, but I don't think so. // O(m)
         if (types_tree.insertElement(new_type) == false)
         {
             return FAILURE; //already exist typeID
         }
         AvlTree<Model>* models_tree = new AvlTree<Model>(new_type.getModelsArray(), new_type.getNumOfModels()-1); // O(m)  special algoritm for building AVL tree. 
-
-        for (int i = 0; i < numOfModels; i++) //insert to model_by_sale
-        {
-            ModelBySale model_by_sale = ModelBySale(typeID, i, 0);
-            models_tree_by_sales.insertElement(model_by_sale);
-        }
-
+        
         TypeTree new_tree_node = TypeTree(typeID, numOfModels, models_tree);    
         zero_tree.insertElement(new_tree_node); // o(log n)
+
+        ModelBySale model_by_sale = ModelBySale(typeID, 0, 0); // log n
+        models_tree_by_sales.insertElement(model_by_sale);
 
         return SUCCESS;
     };
@@ -78,6 +74,12 @@ public:
         }
         //****************
 
+        //********delete from models_tree_by_sales********
+        Model best_seller_model = type_to_delete->getBestSellerModel(); 
+        ModelBySale dummy_model_by_sale = ModelBySale(typeID, best_seller_model.getModelID(), best_seller_model.getNumOfSales());
+        this->models_tree_by_sales.removeElement(dummy_model_by_sale); //o(log(M))
+        //****************
+
         //********delete from models_tree and models_tree_by_sales********
         for (int i = 0; i < type_to_delete->getNumOfModels(); i++) //o(m)
         {
@@ -87,10 +89,6 @@ public:
             {
                 this->models_tree.removeElement(model_to_delete); //o(log(M))
             }
-
-            //delete from models_tree_by_sales
-            ModelBySale dummy_model_by_sale = ModelBySale(typeID, i, model_to_delete.getNumOfSales());
-            this->models_tree_by_sales.removeElement(dummy_model_by_sale); //o(log(M))
         }
         //****************
 
@@ -114,17 +112,20 @@ public:
         }
         //ModelsArray model_to_change = real_Node_id->getData(); // log n
         int prev_score = model_to_change->getModelsArray()[modelID].getScore();
-        int prev_num_of_sales = model_to_change->getModelsArray()[modelID].getNumOfSales();
+        //int prev_num_of_sales = model_to_change->getModelsArray()[modelID].getNumOfSales();
         model_to_change->getModelsArray()[modelID].addSale(); // adding 1 sale + chanching total scores. 
         Model updated_model = model_to_change->getModelsArray()[modelID]; // the new model after update of sales. 
-        model_to_change->updateBestSellerModel(updated_model); // checks inside the function if it should update the min. 
+        Model old_best_seller = model_to_change->getBestSellerModel();
+        if(model_to_change->updateBestSellerModel(updated_model)) // checks inside the function if it should update the min. 
+        {
+            //update models_tree_by_sales after the sale in case the best seller model changed.
+            Model new_best_seller = model_to_change->getBestSellerModel();
+            ModelBySale old_model_by_sale = ModelBySale(typeID, old_best_seller.getModelID(), old_best_seller.getNumOfSales());
+            ModelBySale new_model_by_sale = ModelBySale(typeID, new_best_seller.getModelID(), new_best_seller.getNumOfSales());
+            this->models_tree_by_sales.removeElement(old_model_by_sale); //o(log(M))
+            this->models_tree_by_sales.insertElement(new_model_by_sale); //o(log(M))
+        } 
         
-        //update models_tree_by_sales after the sale
-        ModelBySale dummy_model_by_sale = ModelBySale(typeID, modelID, prev_num_of_sales);
-        this->models_tree_by_sales.removeElement(dummy_model_by_sale); //o(log(M))
-        dummy_model_by_sale.addSale();
-        this->models_tree_by_sales.insertElement(dummy_model_by_sale); //o(log(M))
-
         TypeTree dummy_type_tree_id = TypeTree(typeID, 0, NULL); 
         AvlTree<TypeTree>* real_Node_zero_tree_id = zero_tree.getNode(dummy_type_tree_id); // log n
         
@@ -279,7 +280,7 @@ public:
             {
                 return FAILURE;
             }
-            int id = this->models_tree_by_sales.findMaxNode()->getData().getModelID();
+            int id = this->models_tree_by_sales.getMaxNode()->getData().getModelID();
             *modelID = id;
             return SUCCESS; 
         }

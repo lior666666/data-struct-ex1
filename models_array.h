@@ -83,26 +83,30 @@ public:
         return this->best_seller_model;
     }
 
-    void updateBestSellerModel(Model new_model)
+    bool updateBestSellerModel(Model new_model)
     {
         if(new_model.getNumOfSales() > best_seller_model.getNumOfSales())
         {
             this->best_seller_model = new_model;
+            return true;
         }
         else if (new_model.getNumOfSales() == best_seller_model.getNumOfSales()) 
         {
             if (new_model.getTypeID() < best_seller_model.getTypeID())
             {
                 this->best_seller_model = new_model;
+                return true;
             }
             else if (new_model.getTypeID() == best_seller_model.getTypeID()) 
             {
                 if (new_model.getModelID() < best_seller_model.getModelID())
                 {
                     this->best_seller_model = new_model;
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     friend bool operator==(const ModelsArray& models_array1, const ModelsArray& models_array2);

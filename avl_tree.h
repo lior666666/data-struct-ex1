@@ -10,6 +10,7 @@ class AvlTree
         AvlTree<T>* next;
         AvlTree<T>* parent;
         AvlTree<T>* min_node;
+        AvlTree<T>* max_node;
         int node_height; 
         // internal function to free and delete all the tree nodes 
         void cleanTree(AvlTree<T>* node)
@@ -319,6 +320,7 @@ class AvlTree
         {
             this->next = buildTree(array, 0, size_of_tree );
             this->min_node = findMinNode(); 
+            this->max_node = findMaxNode();
         }
 
         ~AvlTree<T>()
@@ -335,6 +337,7 @@ class AvlTree
                 this->next = newTreeNode; 
                 this->next->parent = NULL; 
                 this->min_node = findMinNode(); 
+                this->max_node = findMaxNode();
                 return true;
             }
             else
@@ -344,6 +347,7 @@ class AvlTree
                 this->next = this->insert(data, this->next); 
                 this->next->parent = NULL; 
                 this->min_node = findMinNode();
+                this->max_node = findMaxNode();
                 return true;   
             }   
         }
@@ -359,6 +363,7 @@ class AvlTree
             if(this->next!=NULL)
                 this->next->parent = NULL;      
             this->min_node = findMinNode();
+            this->max_node = findMaxNode();
             return true; 
         }
         // prints all the data in the tree by order from the smallest key to the biggest one. 
@@ -450,9 +455,14 @@ class AvlTree
             return findMostRightNode(this->next);
         }
 
-        AvlTree<T>* getMinNode() // log(n)
+        AvlTree<T>* getMinNode() // 1
         {
             return min_node;
+        }
+        
+        AvlTree<T>* getMaxNode() // 1
+        {
+            return max_node;
         }
         bool isEmpty()
         {
