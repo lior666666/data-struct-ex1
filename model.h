@@ -16,12 +16,7 @@ public:
     friend bool operator==(const Model& model1, const Model& model2);
     friend bool operator<(const Model& model1, const Model& model2);
     friend std::ostream& operator<<(std::ostream& os, const Model& c);
-    Model(int typeID, int modelID, int score)
-    : typeID(typeID), modelID(modelID), score(score)
-    {
-        this->num_of_sales = 0;
-        this->num_of_complaints = 0;
-    }
+    Model(int typeID, int modelID, int score) : typeID(typeID), modelID(modelID), score(score), num_of_sales(0), num_of_complaints(0) {}
     void addSale()
     {
         this->num_of_sales = this->num_of_sales + 1;
@@ -53,16 +48,9 @@ public:
 
 bool operator==(const Model& model1, const Model& model2)
 {
-    if(model1.score == model2.score && model1.typeID == model2.typeID) 
-        {
-            if(model1.modelID == model2.modelID)
-                return true;
-        }
-    return false;    
-
-    // return model1.score == model2.score &&
-    //         model1.typeID == model2.typeID &&
-    //         model1.modelID == model2.modelID;
+    return model1.score == model2.score &&
+            model1.typeID == model2.typeID &&
+            model1.modelID == model2.modelID;
 }
 
 bool operator<(const Model& model1, const Model& model2)

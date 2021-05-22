@@ -10,7 +10,7 @@ class TypeTree
     int number_of_models;
     AvlTree<Model>* models_tree;
 public:
-    TypeTree() = default;
+    TypeTree(): typeID(0), number_of_models(0), models_tree() {}
 
     friend bool operator==(const TypeTree& type_tree1, const TypeTree& type_tree2);
 
@@ -21,7 +21,7 @@ public:
     ~TypeTree() = default;
 
     TypeTree(int typeID, int number_of_models, AvlTree<Model>* models_tree) // if you want to make dummy, just put NULL into models_tree
-    : typeID(typeID), number_of_models(number_of_models)
+    : typeID(typeID), number_of_models(number_of_models), models_tree()
     {
         this->models_tree = models_tree; 
     }
