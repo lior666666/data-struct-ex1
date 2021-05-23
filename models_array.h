@@ -10,6 +10,7 @@ class ModelsArray
     Model best_seller_model;
     Model* array;
 public:
+
     ModelsArray(): typeID(0), num_of_models(0), best_seller_model(), array() {}
 
     ModelsArray(const ModelsArray& models_array1) :
@@ -51,7 +52,6 @@ public:
 
     ModelsArray(int typeID) : typeID(typeID), num_of_models(0), best_seller_model(), array() {} //dummy
 
-    //check arg before calling the constructor!!!
     ModelsArray(int typeID, int num_of_models) : typeID(typeID), num_of_models(num_of_models), best_seller_model(), array()
     {
         Model* array = new Model[num_of_models];
@@ -112,8 +112,6 @@ public:
     friend bool operator==(const ModelsArray& models_array1, const ModelsArray& models_array2);
 
     friend bool operator<(const ModelsArray& models_array1, const ModelsArray& models_array2);
-
-    friend std::ostream& operator<<(std::ostream& os, const ModelsArray& c);
 };
 
 bool operator==(const ModelsArray& models_array1, const ModelsArray& models_array2)
@@ -131,8 +129,4 @@ bool operator>(const ModelsArray& models_array1, const ModelsArray& models_array
     return !(models_array1 < models_array2) && !(models_array1 == models_array2);
 }
 
-std::ostream& operator<<(std::ostream& os, const ModelsArray& c)
-{
-    return os << "modelArray:" << c.typeID << ":" << c.num_of_models << "***";
-}
 #endif
