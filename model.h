@@ -10,36 +10,46 @@ class Model
     int num_of_sales;
     int num_of_complaints;
 public:
+
     Model(): typeID(0), modelID(0), score(0), num_of_sales(0), num_of_complaints(0) {}
     ~Model() = default;
+
     Model(const Model& model) = default;
+
     friend bool operator==(const Model& model1, const Model& model2);
+
     friend bool operator<(const Model& model1, const Model& model2);
-    friend std::ostream& operator<<(std::ostream& os, const Model& c);
+
     Model(int typeID, int modelID, int score) : typeID(typeID), modelID(modelID), score(score), num_of_sales(0), num_of_complaints(0) {}
+    
     void addSale()
     {
         this->num_of_sales = this->num_of_sales + 1;
         this->score = (this->score)+10;
     }
+    
     Model* addComplain(int months)
     {
         this->num_of_complaints = this->num_of_complaints + 1;
         this->score = this->score-(100/months);
         return this;
     }
+
     int getScore()
     {
         return this->score;
     }
+
     int getTypeID()
     {
         return this->typeID;
     }
+
     int getModelID()
     {
         return this->modelID;
     }
+
     int getNumOfSales()
     {
         return this->num_of_sales;
@@ -71,8 +81,4 @@ bool operator>(const Model& model1, const Model& model2)
     return !(model1 < model2) && !(model1 == model2);
 }
 
-std::ostream& operator<<(std::ostream& os, const Model& c)
-{
-	return os << "model: typeID: " << c.typeID << ", modelID: " << c.modelID << ", score: " << c.score << "***";
-}
 #endif
